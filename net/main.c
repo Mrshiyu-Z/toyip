@@ -1,7 +1,4 @@
-#include <stdio.h>
-#include <string.h>
-#include <unistd.h>
-#include <sys/poll.h>
+#include "lib.h"
 #include "eth.h"
 #include "arp.h"
 #include "icmp.h"
@@ -37,7 +34,7 @@ int main()
                     }
                     if (hdr->ethertype == 0x0008) //IP
                     {
-                        icmp_reply(hdr, tap_fd);
+                        arp_handle(hdr, tap_fd);
                     }
                     memset(hdr, 0, sizeof(*hdr));
                     memset(buf, 0, sizeof(buf));

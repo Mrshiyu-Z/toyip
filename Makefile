@@ -18,7 +18,7 @@ net/net_obj.o:net/*.c
 	@make -C net/
 
 clean:
-	rm -rf *.o
+	@rm -rf *.o
 	@make -C arp/ clean
 	@make -C ip/ clean
 	@make -C net/ clean

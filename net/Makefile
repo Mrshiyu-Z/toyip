@@ -12,4 +12,4 @@ tap.o:tap.c
 	$(CC) $(CFLAGS) -c $< -o $@
 
 clean:
-	rm -rf *.o
+	@rm -rf *.o

@@ -1,8 +1,4 @@
-#include <stdio.h>
-#include <string.h>
-#include <unistd.h>
-
-
+#include "lib.h"
 #include "arp.h"
 
 void fake_ip(unsigned char *ip)
@@ -21,6 +17,15 @@ void fake_hw(unsigned char *hw)
     hw[3] = 0x56;
     hw[4] = 0x78;
     hw[5] = 0x9a;
+}
+
+void arp_handle(struct eth_hdr *hdr, int tap_fd)
+{
+    struct arp_hdr *arp = (struct arp_hdr *)hdr->payload;
+    if (arp->ptype == 0x0800 && arp->hlen == 6 && arp->plen == 4)
+    {
+        arp_reply(hdr, tap_fd);
+    }
 }
 
 void arp_reply(struct eth_hdr *hdr, int tap_fd)
@@ -42,3 +47,6 @@ void arp_reply(struct eth_hdr *hdr, int tap_fd)
     printf("%02x:%02x:%02x:%02x:%02x:%02x\n", arp->smac[0], arp->smac[1], arp->smac[2], arp->smac[3], arp->smac[4], arp->smac[5]);
     printf("------------------------------\n");
 }
+
+
+

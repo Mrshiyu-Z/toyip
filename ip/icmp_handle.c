@@ -1,9 +1,5 @@
-#include <stdio.h>
-#include <string.h>
-#include <unistd.h>
-#include <arpa/inet.h>
-
 #include "ip.h"
+#include "lib.h"
 #include "arp.h"
 #include "icmp.h"
 
@@ -78,21 +74,3 @@ unsigned short checksum(unsigned char *buf, int count)
 
     return ~sum;
 }
-
-// unsigned short checksum(unsigned char *buf, int len)
-// {
-//     unsigned long sum = 0;
-//     while (len > 1)
-//     {
-//         sum += *(unsigned short *)buf;
-//         buf += 2;
-//         len -= 2;
-//     }
-//     if (len == 1)
-//     {
-//         sum += *(unsigned char *)buf;
-//     }
-//     sum = (sum >> 16) + (sum & 0xffff);
-//     sum += (sum >> 16);
-//     return ~sum;
-// }

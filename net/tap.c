@@ -1,11 +1,4 @@
-#include <fcntl.h>
-#include <stdio.h>
-#include <unistd.h>
-#include <net/if.h>
-#include <string.h>
-#include <sys/ioctl.h>
-#include <linux/if.h>
-#include <linux/if_tun.h>
+#include "lib.h"
 
 int alloc_tap(char *dev)
 {

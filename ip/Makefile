@@ -9,4 +9,4 @@ icmp_haddle.o:icmp_handle.c
 	$(CC) $(CFLAGS) -c $< -o $@
 
 clean:
-	rm -rf *.o
+	@rm -rf *.o

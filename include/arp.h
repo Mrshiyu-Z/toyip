@@ -6,6 +6,7 @@
 extern void fake_ip(unsigned char *ip);
 extern void fake_hw(unsigned char *mac);
 extern void arp_reply(struct eth_hdr *hdr, int tap_fd);
+extern void arp_handle(struct eth_hdr *hdr, int tap_fd);
 
 struct arp_hdr{            //arp头
     unsigned short htype;  //链路层类型 1以太网
