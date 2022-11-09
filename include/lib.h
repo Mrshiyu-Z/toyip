@@ -12,4 +12,12 @@
 #include <sys/ioctl.h>
 #include <linux/if_tun.h>
 
+/*pthread*/
+#include <pthread.h>
+
+typedef void *(*pfunc_t)(void *); //函数指针,返回一个void *类型的指针,参数是一个void *类型的指针
+
+void net_timer(void); //定时器
+void net_stack_run(void); //开启线程
+
 #endif

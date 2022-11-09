@@ -1,5 +1,6 @@
 CC = gcc
 CFLAGS = -Wall -g -I../include
+LFALGS = -pthread
 export CC CFLAGS
 
 NET_STACK_OBJS = arp/arp_obj.o \
@@ -8,7 +9,7 @@ NET_STACK_OBJS = arp/arp_obj.o \
 
 all:tap
 tap:$(NET_STACK_OBJS)
-	$(CC) -o $@ $^
+	$(CC) $(LFALGS) -o $@ $^
 
 ip/ip_obj.o:ip/*.c
 	@make -C ip/
