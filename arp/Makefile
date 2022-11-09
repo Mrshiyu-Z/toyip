@@ -5,8 +5,8 @@ all:arp_obj.o
 arp_obj.o:$(OBJS)
 	$(LD) -r -o $@ $^
 
-arp.o:arp.c
-	$(CC) $(CFLAGS) -c $< -o $@
+%.o:%.c
+	$(CC) $(CFLAGS) -c -o $@ $<
 
 clean:
 	@rm -rf *.o

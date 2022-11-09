@@ -5,9 +5,9 @@
 struct pkg_buf
 {
     struct list_head list;
+    int pkg_len;
     unsigned short pkg_pro; //以太帧类型
     unsigned short pkg_type; //传输类型,localhost,其他接口,组播,广播
-    int pkg_len;
     unsigned char data[0];
 }__attribute__((packed));
 
@@ -19,9 +19,11 @@ struct pkg_buf
 
 #define MTU_SIZE 1500
 
-extern void net_init(void);
-extern void net_rx(void);
-extern void net_in(void);
+extern void eth_init(void);    //初始化以太网套接字
+extern int eth_recv(struct pkg_buf *pkg);  //接收以太网数据包
+extern void eth_rx(void); 
+extern void eth_in(void);
+void net_in(struct pkg_buf *pkg);
 extern struct pkg_buf *pkg_alloc(int size); //分配一个包
 
 #endif

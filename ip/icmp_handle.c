@@ -8,7 +8,7 @@
 
 void icmp_reply(struct eth_hdr *hdr, int tap_fd)
 {
-    struct ip_hdr *ip_p = (struct ip_hdr *)hdr->payload;
+    struct ip_hdr *ip_p = (struct ip_hdr *)hdr->data;
     struct icmp_hdr *icmp_p = (struct icmp_hdr *)ip_p->payload;
     printf("ICMP request: from %d.%d.%d.%d to %d.%d.%d.%d\n", ip_p->ip_src[0], ip_p->ip_src[1], ip_p->ip_src[2], ip_p->ip_src[3], ip_p->ip_dst[0], ip_p->ip_dst[1], ip_p->ip_dst[2], ip_p->ip_dst[3]);
     // 交换mac地址

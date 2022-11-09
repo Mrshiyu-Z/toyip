@@ -1,3 +1,9 @@
+#ifndef __IP_H
+#define __IP_H
+
+#define IP_ADDR_LEN 4
+#define FAKE_IP_ADDR 0x0100000a
+
 struct ip_hdr{
     unsigned char ip_ver:4;
     unsigned char ip_hlen:4;           //ip头长度和版本 8
@@ -12,3 +18,7 @@ struct ip_hdr{
     unsigned char ip_dst[4];           //目的IP地址
     unsigned char payload[0];
 }__attribute__((packed));
+
+void cp_ip_lo(unsigned char *ip); //复制本机IP地址
+
+#endif

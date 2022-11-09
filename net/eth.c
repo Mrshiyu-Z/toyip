@@ -4,6 +4,16 @@
 
 int tap_fd;
 
+void cp_mac_lo(unsigned char *mac)
+{
+    mac[0] = 0x00;
+    mac[1] = 0x34;
+    mac[2] = 0x45;
+    mac[3] = 0x67;
+    mac[4] = 0x89;
+    mac[5] = 0xab;
+}
+
 void eth_init(void)
 {
     tap_fd = alloc_tap("tap0");
@@ -33,7 +43,7 @@ void eth_rx(void)
     struct pkg_buf *pkg = pkg_alloc(MTU_SIZE);
     if(0 < eth_recv(pkg))
     {
-        return;
+        net_in(pkg);
     }
     else{
         free(pkg);
@@ -58,5 +68,15 @@ void eth_in(void)
                 eth_rx();
             }
         }
+    }
+}
+
+void eth_tx(struct pkg_buf *pkg, unsigned char *dmac)
+{
+    int len;
+    len = write(tap_fd, pkg->data, pkg->pkg_len);
+    if (len < 0)
+    {
+        perror("net tx write");
     }
 }

@@ -1,52 +1,58 @@
 #include "lib.h"
 #include "arp.h"
+#include "ip.h"
 
-void fake_ip(unsigned char *ip)
+void arp_in(struct pkg_buf *pkg)
 {
-    ip[0] = 10;
-    ip[1] = 0;
-    ip[2] = 0;
-    ip[3] = 1;
-}
-
-void fake_hw(unsigned char *hw)
-{
-    hw[0] = 0x00;
-    hw[1] = 0x12;
-    hw[2] = 0x34;
-    hw[3] = 0x56;
-    hw[4] = 0x78;
-    hw[5] = 0x9a;
-}
-
-void arp_handle(struct eth_hdr *hdr, int tap_fd)
-{
-    struct arp_hdr *arp = (struct arp_hdr *)hdr->payload;
-    if (arp->ptype == 0x0800 && arp->hlen == 6 && arp->plen == 4)
-    {
-        arp_reply(hdr, tap_fd);
+    printf("arp in one\n");
+    struct eth_hdr *eth = (struct eth_hdr *)pkg->data;
+    struct arp_hdr *arp = (struct arp_hdr *)eth->data;
+    if (pkg->pkg_len < ETH_HDR_LEN + ARP_HDR_LEN){
+        perror("arp_in: pkg_len error");
+        goto err_free_pkg;
     }
-}
-
-void arp_reply(struct eth_hdr *hdr, int tap_fd)
-{
-    struct arp_hdr *arp = (struct arp_hdr *)hdr->payload;
-    if (arp->opcode == 0x0100)
-    {
-        printf("ARP request: from %d.%d.%d.%d want to get %d.%d.%d.%d\n", arp->sip[0], arp->sip[1], arp->sip[2], arp->sip[3], arp->dip[0], arp->dip[1], arp->dip[2], arp->dip[3]);
+    if ((memcmp(arp->smac, eth->smac, ETH_MAC_LEN) != 0)){
+        perror("arp_in: memcpy error");
+        goto err_free_pkg;
     }
-    arp->opcode = 0x0200;
-    memcpy(arp->dmac, arp->smac, 6);
-    memcpy(hdr->dmac, hdr->smac, 6);
-    memcpy(arp->dip, arp->sip, 4);
-    fake_hw(arp->smac);
-    fake_hw(hdr->smac);
-    fake_ip(arp->sip);
-    write(tap_fd, (void *)hdr, sizeof(*hdr) + sizeof(*arp));
-    printf("ARP reply: from %d.%d.%d.%d to %d.%d.%d.%d with ", arp->sip[0], arp->sip[1], arp->sip[2], arp->sip[3], arp->dip[0], arp->dip[1], arp->dip[2], arp->dip[3]);
-    printf("%02x:%02x:%02x:%02x:%02x:%02x\n", arp->smac[0], arp->smac[1], arp->smac[2], arp->smac[3], arp->smac[4], arp->smac[5]);
-    printf("------------------------------\n");
+    if (htons(arp->htype) != ARP_ETH_TYPE || htons(arp->ptype) != ETH_TYPE_IP || 
+        arp->hlen != ETH_MAC_LEN || arp->plen != IP_ADDR_LEN){
+            perror("unsupported L2/L3 protocol");
+            goto err_free_pkg;
+    }
+    if (htons(arp->opcode) != ARP_REQ && htons(arp->opcode) != ARP_REP){
+        perror("unsupported opcode");
+        goto err_free_pkg;
+    }
+err_free_pkg:
+    free(pkg);
 }
 
+void arp_recv(struct pkg_buf *pkg)
+{
+    struct eth_hdr *eth = (struct eth_hdr *)pkg->data;
+    struct arp_hdr *arp = (struct arp_hdr *)eth->data;
+    struct arp_cache *ac;
+    // if (arp->dip != FAKE_IP_ADDR){
+    //     perror("not for me");
+    //     goto free_pkg;
+    // }
+    if (arp->dip == FAKE_IP_ADDR)
+    {
 
+    }
+free_pkg:
+    free(pkg);
+}
 
+void arp_reply(struct pkg_buf *pkg)
+{
+    struct eth_hdr *eth = (struct eth_hdr *)pkg->data;
+    struct arp_hdr *arp = (struct arp_hdr *)eth->data;
+    arp->opcode = 2;
+    memcpy(arp->dmac, arp->smac, ETH_MAC_LEN);
+    cp_mac_lo(arp->smac);
+    memcpy(arp->dip, arp->sip, IP_ADDR_LEN);
+    cp_ip_lo(arp->sip);
+    
+}

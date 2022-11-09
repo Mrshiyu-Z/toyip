@@ -1,6 +1,7 @@
 #include "net.h"
 #include "eth.h"
 #include "arp.h"
+#include "lib.h"
 
 void net_in(struct pkg_buf *pkg)
 {
@@ -8,13 +9,17 @@ void net_in(struct pkg_buf *pkg)
     if (!eth){
         return;
     }
-    switch (eth->ethertype)
+    unsigned short eth_type = htons(eth->ethertype);
+    switch (eth_type)
     {
         case ETH_TYPE_ARP:
+            arp_in(pkg);
             break;
         case ETH_TYPE_IP:
+            printf("ip in");
             break;
         default:
+            free(pkg);
             break;
     }
 }
