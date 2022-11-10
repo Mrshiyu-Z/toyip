@@ -1,4 +1,4 @@
-OBJS = icmp_handle.o
+OBJS = ip_in.o ip_out.o icmp.o checksum.o
 SUBDIR = ip
 
 all:ip_obj.o

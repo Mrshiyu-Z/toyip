@@ -18,11 +18,7 @@ struct eth_hdr{               //以太网帧头
 //MAC地址长度
 #define ETH_MAC_LEN 6
 
-void cp_mac_lo(unsigned char *mac)
-{
-    mac[0] = 0x00;mac[1] = 0x34;
-    mac[2] = 0x45;mac[3] = 0x67;
-    mac[4] = 0x89;mac[5] = 0xab;
-}
+void eth_out(struct pkg_buf *pkg);
+inline void cp_mac_lo(unsigned char *mac);
 
 #endif

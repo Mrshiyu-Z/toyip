@@ -1,8 +1,7 @@
-#include "arp.h"
 #include "lib.h"
 #include "eth.h"
-#include "list.h"
 #include "net.h"
+#include "arp.h"
 
 static struct arp_cache arp_cache[ARP_CACHE_SIZE];
 

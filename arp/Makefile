@@ -1,4 +1,4 @@
-OBJS   = arp.o
+OBJS   = arp.o arp_cache.o
 SUBDIR = arp
 
 all:arp_obj.o

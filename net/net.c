@@ -2,6 +2,8 @@
 #include "eth.h"
 #include "arp.h"
 #include "lib.h"
+#include "ip.h"
+
 
 void net_in(struct pkg_buf *pkg)
 {
@@ -16,7 +18,7 @@ void net_in(struct pkg_buf *pkg)
             arp_in(pkg);
             break;
         case ETH_TYPE_IP:
-            printf("ip in");
+            ip_recv_route(pkg);
             break;
         default:
             perror("unsupported ethertype");

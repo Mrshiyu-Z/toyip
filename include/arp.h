@@ -2,8 +2,6 @@
 #define __ARP_H
 
 #include "list.h"
-#include "eth.h"
-#include "net.h"
 
 #define ARP_CACHE_SIZE 20 //ARP缓存个数
 #define ARP_FREE 1        //ARP缓存空闲

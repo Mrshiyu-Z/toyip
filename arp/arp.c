@@ -1,7 +1,8 @@
 #include "lib.h"
+#include "eth.h"
+#include "net.h"
 #include "arp.h"
 #include "ip.h"
-#include "eth.h"
 
 void arp_in(struct pkg_buf *pkg)
 {
@@ -36,7 +37,7 @@ void arp_recv(struct pkg_buf *pkg)
 {
     struct eth_hdr *eth = (struct eth_hdr *)pkg->data;
     struct arp_hdr *arp = (struct arp_hdr *)eth->data;
-    struct arp_cache *ac;
+    // struct arp_cache *ac;
     if (check_ip_lo(arp->dip)){
         arp_reply(pkg);
         return;

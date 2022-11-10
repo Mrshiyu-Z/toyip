@@ -1,8 +1,16 @@
-#include "lib.h"
 #include "tap.h"
 #include "net.h"
+#include "eth.h"
+#include "lib.h"
 
 int tap_fd;
+
+inline void cp_mac_lo(unsigned char *mac)
+{
+    mac[0] = 0x00;mac[1] = 0x34;
+    mac[2] = 0x45;mac[3] = 0x67;
+    mac[4] = 0x89;mac[5] = 0xab;
+}
 
 void eth_init(void)
 {
@@ -60,6 +68,14 @@ void eth_in(void)
             }
         }
     }
+}
+
+void eth_out(struct pkg_buf *pkg)
+{
+    struct eth_hdr *eth = (struct eth_hdr *)pkg->data;
+    memcpy(eth->dmac, eth->smac, 6);
+    cp_mac_lo(eth->smac);
+    eth_tx(pkg);
 }
 
 void eth_tx(struct pkg_buf *pkg)
