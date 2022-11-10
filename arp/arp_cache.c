@@ -1,6 +1,7 @@
 #include "lib.h"
-#include "eth.h"
+#include "list.h"
 #include "net.h"
+#include "eth.h"
 #include "arp.h"
 
 static struct arp_cache arp_cache[ARP_CACHE_SIZE];
@@ -66,8 +67,7 @@ void arp_queue_drop(struct arp_cache *ac)
     while(!list_empty(&ac->list))
     {
         pkg = list_first_node(&ac->list, struct pkg_buf, list);
-        list_del(&ac->list.next);
-        
+        list_del(ac->list.next);   
     }
 }
 

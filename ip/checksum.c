@@ -1,4 +1,4 @@
-
+#include "net.h"
 #include "ip.h"
 
 unsigned short checksum(unsigned char *buf, int count)

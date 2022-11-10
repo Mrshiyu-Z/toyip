@@ -1,7 +1,7 @@
 #include "lib.h"
 #include "tap.h"
-#include "eth.h"
 #include "net.h"
+#include "eth.h"
 #include "arp.h"
 #include "icmp.h"
 

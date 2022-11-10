@@ -15,6 +15,4 @@ struct icmp_v4_echo{
     unsigned char data[];
 }__attribute__((packed));
 
-
-
 #endif

@@ -1,6 +1,6 @@
 #include "lib.h"
-#include "net.h"
 #include "list.h"
+#include "net.h"
 
 #define MAX_PKGS 200
 int pkbs = 0;
@@ -12,7 +12,7 @@ struct pkg_buf *pkg_alloc(int size)
     pkg->pkg_pro = 0xffff;
     pkg->pkg_type = 0;
     pkg->pkg_len = size;
-    list_init(&pkg->list);
+    list_init(&(pkg->list));
     if (pkbs < MAX_PKGS)
     {
         pkbs++;

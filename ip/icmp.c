@@ -1,6 +1,6 @@
 #include "lib.h"
-#include "eth.h"
 #include "net.h"
+#include "eth.h"
 #include "ip.h"
 #include "icmp.h"
 
