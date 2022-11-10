@@ -1,4 +1,4 @@
-#include <stdlib.h>
+#include "lib.h"
 #include "net.h"
 #include "list.h"
 
@@ -19,7 +19,7 @@ struct pkg_buf *pkg_alloc(int size)
         return pkg;
     }
     else{
-        perror("pkg alloc max");
+        perror("pkg alloc max\n");
         exit(0);
     }
 }

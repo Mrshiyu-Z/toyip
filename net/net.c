@@ -19,7 +19,22 @@ void net_in(struct pkg_buf *pkg)
             printf("ip in");
             break;
         default:
+            perror("unsupported ethertype");
             free(pkg);
             break;
     }
+}
+
+void net_out(struct pkg_buf *pkg)
+{
+    struct eth_hdr *eth = (struct eth_hdr *)pkg->data;
+    if (!eth){
+        return;
+    }
+    if (eth->ethertype != ntohs(ETH_TYPE_ARP)){
+        eth->ethertype = ntohs(ETH_TYPE_ARP);
+    }
+    memcpy(eth->dmac, eth->smac, ETH_MAC_LEN);
+    cp_mac_lo(eth->smac);
+    eth_tx(pkg);
 }

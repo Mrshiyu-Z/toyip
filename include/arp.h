@@ -22,6 +22,7 @@
 
 void arp_in(struct pkg_buf *pkg);   //ARP输入
 void arp_recv(struct pkg_buf *pkg); //ARP接收
+void arp_reply(struct pkg_buf *pkg); //ARP应答
 
 struct arp_hdr{
     unsigned short htype;  //链路层类型 1以太网

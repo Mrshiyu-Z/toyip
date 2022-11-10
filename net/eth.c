@@ -4,16 +4,6 @@
 
 int tap_fd;
 
-void cp_mac_lo(unsigned char *mac)
-{
-    mac[0] = 0x00;
-    mac[1] = 0x34;
-    mac[2] = 0x45;
-    mac[3] = 0x67;
-    mac[4] = 0x89;
-    mac[5] = 0xab;
-}
-
 void eth_init(void)
 {
     tap_fd = alloc_tap("tap0");
@@ -46,6 +36,7 @@ void eth_rx(void)
         net_in(pkg);
     }
     else{
+        perror("eth_rx: eth_recv error");
         free(pkg);
     }
 }
@@ -71,7 +62,7 @@ void eth_in(void)
     }
 }
 
-void eth_tx(struct pkg_buf *pkg, unsigned char *dmac)
+void eth_tx(struct pkg_buf *pkg)
 {
     int len;
     len = write(tap_fd, pkg->data, pkg->pkg_len);
