@@ -24,6 +24,10 @@ static inline void arp_cache_unlock(void)    //释放arp缓存
 void arp_cache_init(void)                     //初始化arp缓存
 {
     int i;
+    if (pthread_mutex_init(&arp_cache_mutex, NULL) != 0)
+    {
+        perror("arp_cache_mutex init failed\n");
+    }
     for ( i = 0; i < ARP_CACHE_SIZE; i++)
     {
         arp_cache[i].state = ARP_FREE;
@@ -35,7 +39,9 @@ struct arp_cache *arp_alloc(void) //在ARP_CACHE_SIZE个 arp缓存 中 寻找 �
     static int next = 0;
     int i;
     struct arp_cache *ac = NULL;
+    // printf("arp_alloc 39\n");
     arp_cache_lock();
+    // printf("arp_alloc 41\n");
     for (i = 0; i < ARP_CACHE_SIZE;i++)
     {
         //找到一个空闲的缓存
@@ -74,6 +80,7 @@ void arp_queue_send(struct arp_cache *ac)
 
 void arp_queue_drop(struct arp_cache *ac)           //删除缓存
 {
+    struct pkg_buf *pkg;
     while(!list_empty(&ac->list))
     {
         pkg = list_first_node(&ac->list, struct pkg_buf, list);
@@ -96,6 +103,7 @@ struct arp_cache *arp_cache_lookup(unsigned char *ip)
             return ac;
         }
     }
+    arp_cache_unlock();
     return NULL;
 }
 

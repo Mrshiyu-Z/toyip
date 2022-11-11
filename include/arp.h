@@ -46,6 +46,7 @@ void arp_reply(struct pkg_buf *pkg); //ARP回复
 void arp_reply_handle(struct pkg_buf *pkg); //ARP应答处理
 struct arp_cache *arp_alloc(void);   //分配ARP缓存
 void arp_send_request(struct arp_cache *ac); //ARP发送请求
+void arp_cache_init(void);           //ARP缓存初始化
 struct arp_cache *arp_cache_lookup(unsigned char *ip); //ARP缓存查找
 void arp_queue_send(struct arp_cache *ac); //ARP队列发送
 void arp_insert(unsigned char *ip, unsigned char *mac); //ARP插入

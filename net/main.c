@@ -20,21 +20,20 @@ int newthread(pfunc_t thread_func)
 void net_stack_init(void)
 {
     eth_init();
+    arp_cache_init();
 }
 
 void net_stack_run(void)
 {
     // eth_in();
     threads[0] = newthread((pfunc_t)eth_in);
-    struct arp_cache *ac = arp_alloc();
-    ac->ip[0] = 10;
-    ac->ip[1] = 0;
-    ac->ip[2] = 0;
-    ac->ip[3] = 2;
+    unsigned char ip[4] = {10,0,0,2};
+    sleep(2);
+    icmp_echo(ip);
     while (1)
     {
-        arp_send_request(ac);
-        sleep(3);
+        sleep(2);
+        // arp_send_request(ac); 
     }
 }
 

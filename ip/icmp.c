@@ -7,6 +7,16 @@
 #define DF 0x02
 #define MF 0x01
 
+void print_icmp(struct icmp_hdr *icmp)
+{
+    printf("icmp_type: %d\n", icmp->type);
+    printf("icmp_code: %d\n", icmp->code);
+    printf("icmp_csum: %d\n", icmp->csum);
+    struct icmp_v4_echo *echo = (struct icmp_v4_echo *)icmp->data;
+    printf("icmp_id: %d\n", echo->id);
+    printf("icmp_seq: %d\n", echo->seq);
+}
+
 unsigned short icmp_checksum(struct ip_hdr *ip)
 {
     return checksum((unsigned char *)ip->data, htons(ip->ip_len) - ip->ip_hlen*4);
@@ -16,6 +26,24 @@ void icmp_set_checksum(struct ip_hdr *ip, struct icmp_hdr *icmp)
 {
     icmp->csum = 0;
     icmp->csum = checksum((unsigned char *)ip->data, htons(ip->ip_len)-ip->ip_hlen*4);
+}
+
+unsigned short icmp_id = 1;
+void icmp_echo(unsigned char *ip){
+    struct pkg_buf *pkg = pkg_alloc(ICMP_HDR_LEN + IP_HDR_LEN + ETH_HDR_LEN);
+    struct eth_hdr *eth = (struct eth_hdr *)pkg->data;
+    struct ip_hdr *ip_hdr = (struct ip_hdr *)eth->data;
+    struct icmp_hdr *icmp = (struct icmp_hdr *)ip_hdr->data;
+    struct icmp_v4_echo *echo_icmp = (struct icmp_v4_echo *)icmp->data;
+    echo_icmp->id = htons(icmp_id);
+    echo_icmp->seq = htons(icmp_id);
+    icmp->type = ICMP_ECHO;
+    icmp->code = 0;
+    icmp_set_checksum(ip_hdr, icmp);
+    memcpy(ip_hdr->ip_dst, ip, 4);
+    // print_icmp(icmp);
+    pkg->pkg_pro = htons(ETH_TYPE_ARP);
+    ip_send_info(pkg, 0, ICMP_HDR_LEN + IP_HDR_LEN, IP_PROTO_ICMP, ip);
 }
 
 void icmp_echo_reply(struct pkg_buf *pkg)
@@ -34,7 +62,7 @@ void icmp_in(struct pkg_buf *pkg)
     struct eth_hdr *eth = (struct eth_hdr *)pkg->data;
     struct ip_hdr *ip = (struct ip_hdr *)eth->data;
     struct icmp_hdr *icmp = (struct icmp_hdr *)ip->data;
-    if (icmp->type != 8){
+    if (icmp->type != 8 || icmp->code != 0){
         perror("icmp type error");
         goto free_pkg;
         return;
@@ -46,7 +74,11 @@ void icmp_in(struct pkg_buf *pkg)
         goto free_pkg;
         return;
     }
-    icmp_echo_reply(pkg);
+    if (icmp->type == 0){
+        printf("icmp echo reply\n");
+    }else{
+        icmp_echo_reply(pkg);
+    }
     return;
 free_pkg:
     free(pkg);

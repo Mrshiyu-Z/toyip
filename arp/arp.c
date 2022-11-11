@@ -24,7 +24,7 @@ void arp_in(struct pkg_buf *pkg)
     printf("arp in\n");
     struct eth_hdr *eth = (struct eth_hdr *)pkg->data;
     struct arp_hdr *arp = (struct arp_hdr *)eth->data;
-    printf_arp(arp);
+    // printf_arp(arp);
     if (pkg->pkg_len < ETH_HDR_LEN + ARP_HDR_LEN){     //确认报文长度
         printf("arp_in: pkg_len error\n");
         goto err_free_pkg;
@@ -51,10 +51,12 @@ err_free_pkg:
 
 void arp_send_request(struct arp_cache *ac)
 {
+    printf("arp_send_request\n");
     struct pkg_buf *pkg = pkg_alloc(ETH_HDR_LEN + ARP_HDR_LEN);
     struct eth_hdr *eth = (struct eth_hdr *)pkg->data;
     struct arp_hdr *arp = (struct arp_hdr *)eth->data;
-    arp->htype = htons(ARP_ETH_TYPE);                // 给arp头部赋值
+    /* 给arp头部赋值 */ 
+    arp->htype = htons(ARP_ETH_TYPE);                
     arp->ptype = htons(ETH_TYPE_IP);
     arp->hlen = ETH_MAC_LEN;
     arp->plen = IP_ADDR_LEN;
@@ -104,7 +106,7 @@ free_pkg:
     free(pkg);
 }
 
-void arp_reply(struct pkg_buf *pkg)
+void arp_reply(struct pkg_buf *pkg)     //回复ARP请求
 {
     printf("arp reply\n");
     struct eth_hdr *eth = (struct eth_hdr *)pkg->data;
@@ -123,7 +125,7 @@ void arp_reply(struct pkg_buf *pkg)
     net_out(pkg, arp->dmac, ETH_TYPE_ARP);
 }
 
-void arp_reply_handle(struct pkg_buf *pkg)
+void arp_reply_handle(struct pkg_buf *pkg)   //处理ARP应答
 {
     printf("arp reply handle\n");
     struct eth_hdr *eth = (struct eth_hdr *)pkg->data;
@@ -142,6 +144,4 @@ void arp_reply_handle(struct pkg_buf *pkg)
     {
         arp_insert(arp->sip, arp->smac);
     }
-    printf_arp(arp);
-    printf("----------------------\n");
 }
