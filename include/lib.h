@@ -7,6 +7,7 @@
 #include <unistd.h>
 #include <fcntl.h>
 #include <net/if.h>
+#include <stddef.h>
 #include <linux/if.h>
 #include <sys/poll.h>
 #include <arpa/inet.h>

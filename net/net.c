@@ -11,8 +11,9 @@ void net_in(struct pkg_buf *pkg)
     if (!eth){
         return;
     }
-    unsigned short eth_type = htons(eth->ethertype);
-    switch (eth_type)
+    // printf("net_in: eth->type = %x\n", eth->ethertype);
+    pkg->pkg_type = htons(eth->ethertype);
+    switch (pkg->pkg_type)
     {
         case ETH_TYPE_ARP:
             arp_in(pkg);
@@ -27,16 +28,13 @@ void net_in(struct pkg_buf *pkg)
     }
 }
 
-void net_out(struct pkg_buf *pkg)
+void net_out(struct pkg_buf *pkg,unsigned char *dmac, unsigned short eth_type)
 {
     struct eth_hdr *eth = (struct eth_hdr *)pkg->data;
-    if (!eth){
-        return;
-    }
-    if (eth->ethertype != ntohs(ETH_TYPE_ARP)){
-        eth->ethertype = ntohs(ETH_TYPE_ARP);
-    }
-    memcpy(eth->dmac, eth->smac, ETH_MAC_LEN);
+    memcpy(eth->dmac, dmac, 6);
     cp_mac_lo(eth->smac);
-    eth_tx(pkg);
+    eth->ethertype = htons(eth_type);
+    // printf_eth(eth);
+    // printf("----------------------\n");
+    eth_out(pkg);
 }

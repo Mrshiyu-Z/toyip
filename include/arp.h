@@ -4,6 +4,7 @@
 #include "list.h"
 
 #define ARP_CACHE_SIZE 20 //ARP缓存个数
+
 #define ARP_FREE 1        //ARP缓存空闲
 #define ARP_PENDDING 2    //ARP缓存等待
 #define ARP_RESOLVED 3    //ARP缓存已解析
@@ -17,10 +18,6 @@
 #define ARP_REP 2         //ARP应答
 
 #define ARP_HDR_LEN 28    //ARP头部长度
-
-void arp_in(struct pkg_buf *pkg);   //ARP输入
-void arp_recv(struct pkg_buf *pkg); //ARP接收
-void arp_reply(struct pkg_buf *pkg); //ARP应答
 
 struct arp_hdr{
     unsigned short htype;  //链路层类型 1以太网
@@ -43,4 +40,13 @@ struct arp_cache{
     unsigned char mac[6];   //MAC地址
 };
 
+void arp_in(struct pkg_buf *pkg);   //ARP输入
+void arp_recv(struct pkg_buf *pkg); //ARP接收
+void arp_reply(struct pkg_buf *pkg); //ARP回复
+void arp_reply_handle(struct pkg_buf *pkg); //ARP应答处理
+struct arp_cache *arp_alloc(void);   //分配ARP缓存
+void arp_send_request(struct arp_cache *ac); //ARP发送请求
+struct arp_cache *arp_cache_lookup(unsigned char *ip); //ARP缓存查找
+void arp_queue_send(struct arp_cache *ac); //ARP队列发送
+void arp_insert(unsigned char *ip, unsigned char *mac); //ARP插入
 #endif

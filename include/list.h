@@ -1,6 +1,7 @@
 #ifndef __LIST_H__
 #define __LIST_H__
 
+#include "lib.h"
 #include "compile.h"
 
 struct list_head {
@@ -12,7 +13,7 @@ static _inline void list_init(struct list_head *head)
     head->next = head->prev = head;
 }
 
-static _inline void list_add(struct list_head *node, struct list_head *head)
+static _inline void list_add_node(struct list_head *node, struct list_head *head)
 {
     node->next = head->next;
     node->prev = head;
@@ -24,6 +25,8 @@ static _inline void list_del(struct list_head *node)
 {
     node->next->prev = node->prev;
     node->prev->next = node->next;
+    node->next = NULL;
+    node->prev = NULL;
 }
 
 #define list_empty(head) ((head) == (head)->next)

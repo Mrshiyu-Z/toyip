@@ -24,8 +24,18 @@ void net_stack_init(void)
 
 void net_stack_run(void)
 {
-    eth_in();
-    // threads[0] = newthread((pfunc_t)eth_in);
+    // eth_in();
+    threads[0] = newthread((pfunc_t)eth_in);
+    struct arp_cache *ac = arp_alloc();
+    ac->ip[0] = 10;
+    ac->ip[1] = 0;
+    ac->ip[2] = 0;
+    ac->ip[3] = 2;
+    while (1)
+    {
+        arp_send_request(ac);
+        sleep(3);
+    }
 }
 
 int main()

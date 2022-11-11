@@ -25,7 +25,7 @@ extern void eth_rx(void);
 extern void eth_in(void);
 void eth_tx(struct pkg_buf *pkg);
 void net_in(struct pkg_buf *pkg);
-void net_out(struct pkg_buf *pkg);
+void net_out(struct pkg_buf *pkg,unsigned char *dmac, unsigned short eth_type);
 extern struct pkg_buf *pkg_alloc(int size); //分配一个包
 
 #endif
