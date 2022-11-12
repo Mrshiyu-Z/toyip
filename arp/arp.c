@@ -51,7 +51,6 @@ err_free_pkg:
 
 void arp_send_request(struct arp_cache *ac)
 {
-    printf("arp_send_request\n");
     struct pkg_buf *pkg = pkg_alloc(ETH_HDR_LEN + ARP_HDR_LEN);
     struct eth_hdr *eth = (struct eth_hdr *)pkg->data;
     struct arp_hdr *arp = (struct arp_hdr *)eth->data;
@@ -66,7 +65,8 @@ void arp_send_request(struct arp_cache *ac)
     memcpy(arp->dmac, mac_multicast, ETH_MAC_LEN);   //目的地址为组播地址
     memcpy(arp->dip, ac->ip, IP_ADDR_LEN);
     // printf_arp(arp);                              //打印arp头部
-    net_out(pkg, mac_multicast,ETH_TYPE_ARP);
+    printf("arp_send_request to %d.%d.%d.%d find %d.%d.%d.%d\n", arp->dip[0], arp->dip[1], arp->dip[2], arp->dip[3], arp->sip[0], arp->sip[1], arp->sip[2], arp->sip[3]);
+    net_out(pkg, arp->dmac,ETH_TYPE_ARP);
 }
 
 void arp_recv(struct pkg_buf *pkg)

@@ -7,9 +7,8 @@ int tap_fd;
 
 void printf_eth(struct eth_hdr *eth)
 {
-    printf("eth_out: %02x:%02x:%02x:%02x:%02x:%02x -> %02x:%02x:%02x:%02x:%02x:%02x\n", 
-            eth->smac[0], eth->smac[1], eth->smac[2], eth->smac[3], eth->smac[4], eth->smac[5],
-            eth->dmac[2], eth->dmac[3], eth->dmac[4], eth->dmac[5]);
+    printf("eth_out: %02x:%02x:%02x:%02x:%02x:%02x ->",eth->smac[0], eth->smac[1], eth->smac[2], eth->smac[3], eth->smac[4], eth->smac[5]);
+    printf(" %02x:%02x:%02x:%02x:%02x:%02x \n",eth->dmac[0], eth->dmac[1], eth->dmac[2], eth->dmac[3], eth->dmac[4], eth->dmac[5]);
     printf("eth->type: %x\n", eth->ethertype);
 }
 
@@ -83,8 +82,9 @@ void eth_in(void)           //监听tap设备
 void eth_out(struct pkg_buf *pkg)   //发送报文到tap设备
 {
     struct eth_hdr *eth = (struct eth_hdr *)pkg->data;
-    // printf_eth(eth);
+    printf_eth(eth);
     // printf("%x\n",htons(ETH_TYPE_IP));
+    printf("-----------------------------------------\n");
     if (eth->ethertype != htons(ETH_TYPE_IP) && eth->ethertype != htons(ETH_TYPE_ARP))
     {
         perror("eth_out: ethertype error");

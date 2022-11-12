@@ -30,13 +30,13 @@ void ip_set_checksum(struct ip_hdr *ip)
 {
     ip->ip_sum = 0;
     ip->ip_sum = checksum((unsigned char *)ip, ip->ip_hlen*4);
+    // printf("ip set checksum: %d\n", ip->ip_sum);
 }
 
 void ip_send_dev(struct pkg_buf *pkg)
 {
     struct eth_hdr *eth = (struct eth_hdr *)pkg->data;
     struct ip_hdr *ip = (struct ip_hdr *)(eth->data);
-    printf("%x %x %x %x\n", ip->ip_dst[0], ip->ip_dst[1], ip->ip_dst[2], ip->ip_dst[3]);
     struct arp_cache *ac = arp_cache_lookup(ip->ip_dst);
     if (ac == NULL)
     {
@@ -50,10 +50,13 @@ void ip_send_dev(struct pkg_buf *pkg)
             return;
         }
         memcpy(ac->ip, ip->ip_dst, 4);
-        // printf("ip_send_dev 52\n");
         list_add_node(&pkg->list, &ac->list);   //将数据包加入到ARP缓存队列中
-        // printf("ip_send_dev 52\n");
+        struct pkg_buf *arp_pkg = list_first_node(&ac->list, struct pkg_buf, list);
+        struct eth_hdr *arp_eth = (struct eth_hdr *)arp_pkg->data;
+        struct ip_hdr *arp_ip = (struct ip_hdr *)(arp_eth->data);
+        // print_ip(arp_ip);
         arp_send_request(ac);
+        ac->state = ARP_PENDDING;
     }else{
         printf("ip_send_dev: arp cache found\n");
         net_out(pkg, ac->mac, ETH_TYPE_IP);
@@ -65,11 +68,15 @@ void ip_send_out(struct pkg_buf *pkg)
     struct eth_hdr *eth = (struct eth_hdr *)pkg->data;
     struct ip_hdr *ip = (struct ip_hdr *)eth->data;
     pkg->pkg_pro = ETH_TYPE_IP;
+    // printf("ip_send_out\n");
+    // print_ip(ip);
     ip_set_checksum(ip);
-    if(ip->ip_len > MTU_SIZE)
+    printf("74\n");
+    if(htons(ip->ip_len) > MTU_SIZE)
     {
         return;
     }else{
+        printf("74\n");
         ip_send_dev(pkg);
     }
     return;
@@ -79,7 +86,8 @@ unsigned short ip_id = 0;
 void ip_send_info(struct pkg_buf *pkg, unsigned char ip_tos,unsigned short ip_len, 
         unsigned char ip_proto, unsigned char ip_dst[4])
 {
-    struct ip_hdr *ip = (struct ip_hdr *)pkg->data;
+    struct eth_hdr *eth = (struct eth_hdr *)pkg->data;
+    struct ip_hdr *ip = (struct ip_hdr *)eth->data;
     ip->ip_ver = IP_VER_4;
     ip->ip_hlen = IP_HDR_LEN/4;
     ip->ip_tos = ip_tos;
@@ -90,6 +98,7 @@ void ip_send_info(struct pkg_buf *pkg, unsigned char ip_tos,unsigned short ip_le
     ip->ip_proto = ip_proto;
     cp_ip_lo(ip->ip_src);        //源IP地址设置为本机IP地址
     memcpy(ip->ip_dst, ip_dst, 4);
+    // printf("ip_send_info\n");
     // print_ip(ip);
     ip_send_out(pkg);
 }

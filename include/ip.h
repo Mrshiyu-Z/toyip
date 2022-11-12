@@ -32,5 +32,6 @@ void ip_send_info(struct pkg_buf *pkg, unsigned char ip_tos,unsigned short ip_le
 extern unsigned short checksum(unsigned char *buf, int count);
 extern inline int check_ip_lo(unsigned char *ip);
 extern inline void cp_ip_lo(unsigned char *ip);
+extern void print_ip(struct ip_hdr *ip);
 
 #endif

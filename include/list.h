@@ -30,7 +30,6 @@ static _inline void list_del(struct list_head *node)
 }
 
 #define list_empty(head) ((head) == (head)->next)
-#define list_first_node(head, type, member) \
-    (list_empty(head) ? NULL : container_of((head)->next, type, member))
+#define list_first_node(head, type, member) container_of((head)->next, type, member)
 
 #endif

@@ -33,9 +33,6 @@ void net_out(struct pkg_buf *pkg,unsigned char *dmac, unsigned short eth_type)
     struct eth_hdr *eth = (struct eth_hdr *)pkg->data;
     memcpy(eth->dmac, dmac, 6);
     cp_mac_lo(eth->smac);
-    printf("net_out: eth->type = %x\n", eth_type);
     eth->ethertype = htons(eth_type);
-    printf_eth(eth);
-    // printf("----------------------\n");
     eth_out(pkg);
 }
