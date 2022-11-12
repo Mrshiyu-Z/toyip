@@ -25,7 +25,7 @@ unsigned short icmp_checksum(struct ip_hdr *ip)
 void icmp_set_checksum(struct ip_hdr *ip, struct icmp_hdr *icmp)
 {
     icmp->csum = 0;
-    icmp->csum = checksum((unsigned char *)ip->data, htons(ip->ip_len)-ip->ip_hlen*4);
+    icmp->csum = checksum((unsigned char *)ip->data, 8);
 }
 
 unsigned short icmp_id = 1;
@@ -74,7 +74,7 @@ void icmp_in(struct pkg_buf *pkg)
         goto free_pkg;
         return;
     }
-    if (icmp->type == 0){
+    if (htons(icmp->type) == 0){
         printf("icmp echo reply\n");
     }else{
         icmp_echo_reply(pkg);
