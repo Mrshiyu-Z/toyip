@@ -11,7 +11,6 @@ void net_in(struct pkg_buf *pkg)
     if (!eth){
         return;
     }
-    // printf("net_in: eth->type = %x\n", eth->ethertype);
     pkg->pkg_type = htons(eth->ethertype);
     switch (pkg->pkg_type)
     {

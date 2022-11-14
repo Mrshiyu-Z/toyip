@@ -48,7 +48,6 @@ void eth_rx(void)                    //从tap设备读取报文并处理
     struct pkg_buf *pkg = pkg_alloc(MTU_SIZE);
     if(0 < eth_recv(pkg))
     {
-        // printf_eth(eth);
         net_in(pkg);
     }
     else{
@@ -59,7 +58,6 @@ void eth_rx(void)                    //从tap设备读取报文并处理
 
 void eth_in(void)           //监听tap设备
 {
-    // printf("eth_in start\n");
     int ret = 0;
     struct pollfd pfd[1];
     pfd[0].fd = tap_fd;
@@ -82,7 +80,7 @@ void eth_in(void)           //监听tap设备
 void eth_out(struct pkg_buf *pkg)   //发送报文到tap设备
 {
     struct eth_hdr *eth = (struct eth_hdr *)pkg->data;
-    printf_eth(eth);
+    // printf_eth(eth);
     // printf("%x\n",htons(ETH_TYPE_IP));
     printf("-----------------------------------------\n");
     if (eth->ethertype != htons(ETH_TYPE_IP) && eth->ethertype != htons(ETH_TYPE_ARP))

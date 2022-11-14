@@ -29,9 +29,9 @@ void net_stack_run(void)
     threads[0] = newthread((pfunc_t)eth_in);
     unsigned char ip[4] = {10,0,0,2};
     sleep(2);
-    icmp_echo(ip);
     while (1)
     {
+        icmp_echo(ip);
         sleep(2);
         // arp_send_request(ac); 
     }

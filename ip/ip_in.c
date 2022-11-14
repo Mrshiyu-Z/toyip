@@ -22,17 +22,14 @@ void ip_recv_local(struct pkg_buf *pkg)
         goto free_pkg;
         return;
     }
-    if (ip_offlags>>13 == 0x02)    //不分片
+    if (ip_offlags == 0)    //不分片
     {
-        if (ip->ip_proto == 0x01)  //ICMP
+        if (ip->ip_proto == 1)  //ICMP
         {
             icmp_in(pkg);
             return;
         }
     }
-    // printf("ip_offlags: %o\n", ip_offlags>>13);
-    // printf("ip_offlags: %o\n", ip_offlags & 0x1fff);
-    // printf("ip->ip_proto: %d\n", ip->ip_proto);
 free_pkg:
     free(pkg);
     return;

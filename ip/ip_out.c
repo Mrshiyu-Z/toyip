@@ -12,7 +12,7 @@ void print_ip(struct ip_hdr *ip)
     printf("ip_tos: %d\n", ip->ip_tos);
     printf("ip_len: %d\n", htons(ip->ip_len));
     printf("ip_id: %d\n", htons(ip->ip_id));
-    printf("ip_off: %d\n", ip->ip_offlags);
+    printf("ip_off: %x\n", ip->ip_offlags);
     printf("ip_ttl: %d\n", ip->ip_ttl);
     printf("ip_proto: %d\n", ip->ip_proto);
     printf("ip_csum: %d\n", ip->ip_sum);
@@ -71,12 +71,10 @@ void ip_send_out(struct pkg_buf *pkg)
     // printf("ip_send_out\n");
     // print_ip(ip);
     ip_set_checksum(ip);
-    printf("74\n");
     if(htons(ip->ip_len) > MTU_SIZE)
     {
         return;
     }else{
-        printf("74\n");
         ip_send_dev(pkg);
     }
     return;
@@ -93,7 +91,7 @@ void ip_send_info(struct pkg_buf *pkg, unsigned char ip_tos,unsigned short ip_le
     ip->ip_tos = ip_tos;
     ip->ip_len = htons(ip_len);
     ip->ip_id = htons(++ip_id);
-    ip->ip_offlags = 0;
+    ip->ip_offlags = htons(0x4000);     //不分片
     ip->ip_ttl = IP_TTL_;
     ip->ip_proto = ip_proto;
     cp_ip_lo(ip->ip_src);        //源IP地址设置为本机IP地址
