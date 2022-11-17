@@ -35,7 +35,6 @@ void icmp_echo(unsigned char *ip){
     struct ip_hdr *ip_hdr = (struct ip_hdr *)eth->data;
     struct icmp_hdr *icmp = (struct icmp_hdr *)ip_hdr->data;
     struct icmp_v4_echo *echo_icmp = (struct icmp_v4_echo *)icmp->data;
-    // printf("icmp_id: %d\n", icmp_id);
     echo_icmp->id = icmp_id;
     echo_icmp->seq = icmp_id;
     icmp_id++;
@@ -43,7 +42,6 @@ void icmp_echo(unsigned char *ip){
     icmp->code = 0;
     icmp_set_checksum(ip_hdr, icmp);
     memcpy(ip_hdr->ip_dst, ip, 4);
-    // print_icmp(icmp);
     pkg->pkg_pro = htons(ETH_TYPE_ARP);
     ip_send_info(pkg, 0, ICMP_HDR_LEN + IP_HDR_LEN, IP_PROTO_ICMP, ip);
 }
@@ -79,8 +77,6 @@ void icmp_in(struct pkg_buf *pkg)
     }
     if (htons(icmp->type) == 0){
         printf("icmp echo reply from %d.%d.%d.%d\n", ip->ip_src[0], ip->ip_src[1], ip->ip_src[2], ip->ip_src[3]);
-        printf("icmp_id: %d\n", echo_icmp->id);
-        // printf("icmp echo reply\n");
     }else{
         icmp_echo_reply(pkg);
     }

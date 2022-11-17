@@ -37,15 +37,14 @@ void ip_send_dev(struct pkg_buf *pkg)
 {
     struct eth_hdr *eth = (struct eth_hdr *)pkg->data;
     struct ip_hdr *ip = (struct ip_hdr *)(eth->data);
-    struct arp_cache *ac = arp_cache_lookup(ip->ip_dst);
+    struct arp_cache *ac = arp_cache_lookup_resolved(ip->ip_dst);
     if (ac == NULL)
     {
-        printf("ip_send_dev: arp cache not found\n");
+        printf("arp cache not found\n");
         ac = arp_alloc();
-        // printf("ip_send_dev 45\n");
         if (ac == NULL)
         {
-            perror("ip_send_out: arp_alloc error");
+            perror("arp_alloc error");
             free(pkg);
             return;
         }
@@ -54,9 +53,8 @@ void ip_send_dev(struct pkg_buf *pkg)
         struct pkg_buf *arp_pkg = list_first_node(&ac->list, struct pkg_buf, list);
         struct eth_hdr *arp_eth = (struct eth_hdr *)arp_pkg->data;
         struct ip_hdr *arp_ip = (struct ip_hdr *)(arp_eth->data);
-        // print_ip(arp_ip);
-        arp_send_request(ac);
         ac->state = ARP_PENDDING;
+        arp_send_request(ac);
     }else{
         printf("ip_send_dev: arp cache found\n");
         net_out(pkg, ac->mac, ETH_TYPE_IP);
@@ -68,8 +66,6 @@ void ip_send_out(struct pkg_buf *pkg)
     struct eth_hdr *eth = (struct eth_hdr *)pkg->data;
     struct ip_hdr *ip = (struct ip_hdr *)eth->data;
     pkg->pkg_pro = ETH_TYPE_IP;
-    // printf("ip_send_out\n");
-    // print_ip(ip);
     ip_set_checksum(ip);
     if(htons(ip->ip_len) > MTU_SIZE)
     {
@@ -96,7 +92,5 @@ void ip_send_info(struct pkg_buf *pkg, unsigned char ip_tos,unsigned short ip_le
     ip->ip_proto = ip_proto;
     cp_ip_lo(ip->ip_src);        //源IP地址设置为本机IP地址
     memcpy(ip->ip_dst, ip_dst, 4);
-    // printf("ip_send_info\n");
-    // print_ip(ip);
     ip_send_out(pkg);
 }

@@ -40,9 +40,7 @@ struct arp_cache *arp_alloc(void) //在ARP_CACHE_SIZE个 arp缓存 中 寻找 �
     static int next = 0;
     int i;
     struct arp_cache *ac = NULL;
-    // printf("arp_alloc 39\n");
     arp_cache_lock();
-    // printf("arp_alloc 41\n");
     for (i = 0; i < ARP_CACHE_SIZE;i++)
     {
         //找到一个空闲的缓存
@@ -62,8 +60,7 @@ struct arp_cache *arp_alloc(void) //在ARP_CACHE_SIZE个 arp缓存 中 寻找 �
     ac->state = ARP_PENDDING;
     ac->retry = ARP_RETRY;
     ac->ttl = ARP_TIMEOUT;
-    list_init(&ac->list);
-    next = (next + 1) % ARP_CACHE_SIZE; 
+    list_init(&ac->list); 
     arp_cache_unlock();
     return ac;
 }
@@ -73,12 +70,10 @@ void arp_queue_send(struct arp_cache *ac)
     struct pkg_buf *pkg;
     while(!list_empty(&ac->list))
     {
+        printf("arp_queue_send\n");
         pkg = list_first_node(&ac->list, struct pkg_buf, list);
         struct eth_hdr *eth = (struct eth_hdr *)pkg->data;
         struct ip_hdr *ip = (struct ip_hdr *)eth->data;
-        // printf("pkg_pro: %x\n", pkg->pkg_pro);
-        printf("arp_queue_send \n");
-        // print_ip(ip);
         list_del(&pkg->list);
         net_out(pkg, ac->mac, pkg->pkg_pro);
     }
@@ -90,7 +85,8 @@ void arp_queue_drop(struct arp_cache *ac)           //删除缓存
     while(!list_empty(&ac->list))
     {
         pkg = list_first_node(&ac->list, struct pkg_buf, list);
-        list_del(ac->list.next);   
+        list_del(ac->list.next);
+        free(pkg);
     }
 }
 
@@ -113,7 +109,31 @@ struct arp_cache *arp_cache_lookup(unsigned char *ip)
     return NULL;
 }
 
-void arp_insert(unsigned char *ip, unsigned char *mac)
+struct arp_cache *arp_cache_lookup_resolved(unsigned char *ip)
+{
+    struct arp_cache *ac;
+    ac = arp_cache_lookup(ip);
+    arp_cache_lock();
+    if (ac)
+    {
+        if (ac->state == ARP_RESOLVED)
+        {
+            arp_cache_unlock();
+            return ac;
+        }else
+        {
+            arp_cache_unlock();
+            return NULL;
+        }
+    }else
+    {
+        arp_cache_unlock();
+        return NULL;
+    }
+}
+
+
+void arp_insert(unsigned char *ip, unsigned char *mac)   //获取到新的arp缓存
 {
     struct arp_cache *ac;
     ac = arp_alloc();
@@ -126,7 +146,38 @@ void arp_insert(unsigned char *ip, unsigned char *mac)
         memcpy(ac->mac, mac, 6);
     }else
     {
+        printf("arp cache inser error\n");
         return;
+    }  
+}
+
+void arp_timer(int delay)
+{
+    struct arp_cache *ac;
+    arp_cache_lock();
+    for (ac = arp_cache_head; ac < arp_cache_end; ac++)
+    {
+        if (ac->state == ARP_FREE)
+        {
+            continue;
+        }
+        ac->ttl -= delay;
+        if (ac->ttl <= 0)
+        {
+            if ( (ac->state == ARP_PENDDING && --ac->retry < 0) 
+               || ac->state == ARP_RESOLVED)  
+            {
+                if (ac->state == ARP_PENDDING)
+                    arp_queue_drop(ac);
+                ac->state = ARP_FREE;
+            }else   //arp ttl已经超时，但retry次数还没用完,尝试刷新ARP缓存
+            {
+                ac->ttl = ARP_TIMEOUT;
+                arp_cache_unlock();
+                arp_send_request(ac);
+                arp_cache_lock();
+            }
+        }
     }
-    
+    arp_cache_unlock();
 }

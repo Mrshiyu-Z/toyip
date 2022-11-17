@@ -27,5 +27,6 @@ void eth_tx(struct pkg_buf *pkg);
 void net_in(struct pkg_buf *pkg);
 void net_out(struct pkg_buf *pkg,unsigned char *dmac, unsigned short eth_type);
 extern struct pkg_buf *pkg_alloc(int size); //分配一个包
+void net_timer(void); //网络定时器
 
 #endif

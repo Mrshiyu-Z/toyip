@@ -21,7 +21,6 @@ void printf_arp(struct arp_hdr *arp)
 
 void arp_in(struct pkg_buf *pkg)
 {
-    printf("arp in\n");
     struct eth_hdr *eth = (struct eth_hdr *)pkg->data;
     struct arp_hdr *arp = (struct arp_hdr *)eth->data;
     // printf_arp(arp);
@@ -64,8 +63,6 @@ void arp_send_request(struct arp_cache *ac)
     cp_mac_lo(arp->smac);
     memcpy(arp->dmac, mac_multicast, ETH_MAC_LEN);   //目的地址为组播地址
     memcpy(arp->dip, ac->ip, IP_ADDR_LEN);
-    // printf_arp(arp);                              //打印arp头部
-    printf("arp_send_request to %d.%d.%d.%d find %d.%d.%d.%d\n", arp->dip[0], arp->dip[1], arp->dip[2], arp->dip[3], arp->sip[0], arp->sip[1], arp->sip[2], arp->sip[3]);
     net_out(pkg, arp->dmac,ETH_TYPE_ARP);
 }
 
@@ -127,7 +124,6 @@ void arp_reply(struct pkg_buf *pkg)     //回复ARP请求
 
 void arp_reply_handle(struct pkg_buf *pkg)   //处理ARP应答
 {
-    printf("arp reply handle\n");
     struct eth_hdr *eth = (struct eth_hdr *)pkg->data;
     struct arp_hdr *arp = (struct arp_hdr *)eth->data;
     struct arp_cache *ac = arp_cache_lookup(arp->sip);
@@ -137,11 +133,13 @@ void arp_reply_handle(struct pkg_buf *pkg)   //处理ARP应答
         if (ac->state == ARP_PENDDING)
         {
             arp_queue_send(ac);
+            printf("arp get %d.%d.%d.%d mac\n",ac->ip[0], ac->ip[1], ac->ip[2], ac->ip[3]);
         }
         ac->state = ARP_RESOLVED;
         ac->ttl = ARP_TIMEOUT;
     }else
     {
+        printf("arp insert\n");
         arp_insert(arp->sip, arp->smac);
     }
 }

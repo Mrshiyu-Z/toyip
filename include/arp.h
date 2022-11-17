@@ -4,16 +4,16 @@
 #include "list.h"
 
 #define ARP_CACHE_SIZE 20 //ARP缓存个数
-
+/* arp 缓存状态 */
 #define ARP_FREE 1        //ARP缓存空闲
 #define ARP_PENDDING 2    //ARP缓存等待
 #define ARP_RESOLVED 3    //ARP缓存已解析
-
+/* arp缓存超时时间 */
 #define ARP_RETRY 4       //ARP重试次数
 #define ARP_TIMEOUT 600   //ARP超时时间
-
+/* arp报文链路层类型 */
 #define ARP_ETH_TYPE 1    //ARP以太网类型,1表示以太网
-
+/* arp报文操作码 */
 #define ARP_REQ 1         //ARP请求
 #define ARP_REP 2         //ARP应答
 
@@ -48,6 +48,8 @@ struct arp_cache *arp_alloc(void);   //分配ARP缓存
 void arp_send_request(struct arp_cache *ac); //ARP发送请求
 void arp_cache_init(void);           //ARP缓存初始化
 struct arp_cache *arp_cache_lookup(unsigned char *ip); //ARP缓存查找
+struct arp_cache *arp_cache_lookup_resolved(unsigned char *ip); //ARP缓存查找已解析
 void arp_queue_send(struct arp_cache *ac); //ARP队列发送
 void arp_insert(unsigned char *ip, unsigned char *mac); //ARP插入
+void arp_timer(int delay);          //ARP定时器
 #endif

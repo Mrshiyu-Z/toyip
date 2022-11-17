@@ -35,3 +35,13 @@ void net_out(struct pkg_buf *pkg,unsigned char *dmac, unsigned short eth_type)
     eth->ethertype = htons(eth_type);
     eth_out(pkg);
 }
+
+void net_timer(void)
+{
+    while (1)
+    {
+        sleep(1);
+        arp_timer(1);
+    }
+    
+}

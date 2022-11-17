@@ -80,9 +80,6 @@ void eth_in(void)           //监听tap设备
 void eth_out(struct pkg_buf *pkg)   //发送报文到tap设备
 {
     struct eth_hdr *eth = (struct eth_hdr *)pkg->data;
-    // printf_eth(eth);
-    // printf("%x\n",htons(ETH_TYPE_IP));
-    printf("-----------------------------------------\n");
     if (eth->ethertype != htons(ETH_TYPE_IP) && eth->ethertype != htons(ETH_TYPE_ARP))
     {
         perror("eth_out: ethertype error");

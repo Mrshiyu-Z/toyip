@@ -27,13 +27,13 @@ void net_stack_run(void)
 {
     // eth_in();
     threads[0] = newthread((pfunc_t)eth_in);
+    threads[1] = newthread((pfunc_t)net_timer);
     unsigned char ip[4] = {10,0,0,2};
-    sleep(2);
+    sleep(1);
     while (1)
     {
         icmp_echo(ip);
         sleep(2);
-        // arp_send_request(ac); 
     }
 }
 
