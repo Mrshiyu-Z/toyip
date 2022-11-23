@@ -205,3 +205,20 @@ struct pkg_buf *ip_reass(struct pkg_buf *pkg)
     }
     return pkg;
 }
+
+void ip_send_frag(struct pkg_buf *pkg)
+{
+    struct pkg_buf *frag_pkg;
+    struct ip_hdr *ip;
+    int data_len, hlen, max_len, off;
+
+    ip = pkg_2_iphdr(pkg);
+    hlen = ip_hlen(ip);
+    data_len = ip->ip_len - hlen;
+    /*
+    * MTU_SIZE - hlen是分片的最大长度 1480
+    * ~7:一是为了保证分片的长度是8的倍数
+    * 二是为了max_len赋值给ip->len时,后面三位为DF MF标志位,置零避免影响标志位
+    */
+    max_len = (MTU_SIZE - hlen) & ~7;
+}
