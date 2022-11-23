@@ -32,7 +32,7 @@ void net_stack_run(void)
     sleep(1);
     while (1)
     {
-        icmp_echo(ip);
+        // icmp_echo(ip);
         sleep(2);
     }
 }

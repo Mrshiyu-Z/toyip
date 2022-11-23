@@ -31,5 +31,19 @@ static _inline void list_del(struct list_head *node)
 
 #define list_empty(head) ((head) == (head)->next)
 #define list_first_node(head, type, member) container_of((head)->next, type, member)
+#define list_last_node(head, type, member) container_of((head)->prev, type, member)
+#define LIST_HEAD(name) struct list_head name = { &name, &name };
 
+/* 遍历链表 */
+#define list_for_each_node(entry, head, member)\
+    for (entry = list_first_node(head, typeof(*entry), member);\
+        &entry->member != (head);\
+        entry = list_first_node(&entry->member, typeof(*entry), member))
+
+
+/* 反方向遍历链表 */
+#define list_for_each_node_last(entry, head, member)\
+    for (entry = list_last_node(head, typeof(*entry), member);\
+        &entry->member != (head);\
+        entry = list_last_node(&entry->member, typeof(*entry), member))
 #endif

@@ -16,6 +16,7 @@ void ip_recv_local(struct pkg_buf *pkg)
     struct ip_hdr *ip = (struct ip_hdr *)eth->data;
     unsigned short ip_offlags = htons(ip->ip_offlags);
     unsigned short ip_sum = ip->ip_sum;
+    print_ip(ip);
     ip->ip_sum = 0;
     if (ip_sum != ip_checksum(ip)){  //检查校验和是否正确
         perror("ip checksum error");

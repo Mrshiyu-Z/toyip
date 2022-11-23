@@ -7,17 +7,20 @@
 
 void print_ip(struct ip_hdr *ip)
 {
-    printf("ip_v: %d\n", ip->ip_ver);
-    printf("ip_hlen: %d\n", ip->ip_hlen);
+    printf("ip_v: %d\n", ip_ver(ip));
+    printf("ip_hlen: %d\n", ip_hlen(ip));
     printf("ip_tos: %d\n", ip->ip_tos);
     printf("ip_len: %d\n", htons(ip->ip_len));
     printf("ip_id: %d\n", htons(ip->ip_id));
-    printf("ip_off: %x\n", ip->ip_offlags);
+    printf("ip_df: %x\n", ip_df(ip));
+    printf("ip_mf: %x\n", ip_mf(ip));
+    printf("ip_off: %x\n", ip_off(ip));
     printf("ip_ttl: %d\n", ip->ip_ttl);
     printf("ip_proto: %d\n", ip->ip_proto);
     printf("ip_csum: %d\n", ip->ip_sum);
     printf("ip_src: %d.%d.%d.%d\n", ip->ip_src[0], ip->ip_src[1], ip->ip_src[2], ip->ip_src[3]);
     printf("ip_dst: %d.%d.%d.%d\n", ip->ip_dst[0], ip->ip_dst[1], ip->ip_dst[2], ip->ip_dst[3]);
+    printf("-------------------------------\n");
 }
 
 inline void cp_ip_lo(unsigned char *ip)
@@ -50,13 +53,9 @@ void ip_send_dev(struct pkg_buf *pkg)
         }
         memcpy(ac->ip, ip->ip_dst, 4);
         list_add_node(&pkg->list, &ac->list);   //将数据包加入到ARP缓存队列中
-        struct pkg_buf *arp_pkg = list_first_node(&ac->list, struct pkg_buf, list);
-        struct eth_hdr *arp_eth = (struct eth_hdr *)arp_pkg->data;
-        struct ip_hdr *arp_ip = (struct ip_hdr *)(arp_eth->data);
         ac->state = ARP_PENDDING;
         arp_send_request(ac);
     }else{
-        printf("ip_send_dev: arp cache found\n");
         net_out(pkg, ac->mac, ETH_TYPE_IP);
     }
 }

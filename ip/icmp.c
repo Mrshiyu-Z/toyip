@@ -53,7 +53,7 @@ void icmp_echo_reply(struct pkg_buf *pkg)
     struct icmp_hdr *icmp = (struct icmp_hdr *)ip->data;
     icmp->type = 0;
     icmp_set_checksum(ip, icmp);
-    ip_send_out(pkg);
+    ip_send_info(pkg, 0, ICMP_HDR_LEN + IP_HDR_LEN, IP_PROTO_ICMP, ip->ip_src);
     return;
 }
 
@@ -62,7 +62,6 @@ void icmp_in(struct pkg_buf *pkg)
     struct eth_hdr *eth = (struct eth_hdr *)pkg->data;
     struct ip_hdr *ip = (struct ip_hdr *)eth->data;
     struct icmp_hdr *icmp = (struct icmp_hdr *)ip->data;
-    struct icmp_v4_echo *echo_icmp = (struct icmp_v4_echo *)icmp->data;
     if (icmp->type != 0 && icmp->type != 0){
         perror("icmp type error");
         goto free_pkg;

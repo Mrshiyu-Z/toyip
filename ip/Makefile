@@ -1,4 +1,4 @@
-OBJS = ip_in.o ip_out.o icmp.o checksum.o
+OBJS = ip_in.o ip_out.o icmp.o checksum.o ip_frag.o
 SUBDIR = ip
 
 all:ip_obj.o

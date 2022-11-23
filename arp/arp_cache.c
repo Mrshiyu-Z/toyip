@@ -70,10 +70,8 @@ void arp_queue_send(struct arp_cache *ac)
     struct pkg_buf *pkg;
     while(!list_empty(&ac->list))
     {
-        printf("arp_queue_send\n");
+        //寻找缓存中的包,并发送出去,发送完后,删除缓存中的包
         pkg = list_first_node(&ac->list, struct pkg_buf, list);
-        struct eth_hdr *eth = (struct eth_hdr *)pkg->data;
-        struct ip_hdr *ip = (struct ip_hdr *)eth->data;
         list_del(&pkg->list);
         net_out(pkg, ac->mac, pkg->pkg_pro);
     }
