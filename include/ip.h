@@ -46,6 +46,7 @@ extern void ip_recv_route(struct pkg_buf *pkg);
 void ip_send_info(struct pkg_buf *pkg, unsigned char ip_tos,unsigned short ip_len, 
         unsigned char ip_proto, unsigned char ip_dst[4]);
 extern unsigned short checksum(unsigned char *buf, int count);
+extern void ip_set_checksum(struct ip_hdr *ip);
 extern inline int check_ip_lo(unsigned char *ip);
 extern inline void cp_ip_lo(unsigned char *ip);
 extern void print_ip(struct ip_hdr *ip);
@@ -67,10 +68,12 @@ struct fragment {
 //frag_ttl 取值
 #define FRAG_TIME_OUT 60  //分片超时时间
 //frag_flags 取值
-#define FRAG_COMPLETE 0X0001  //分片已经完整
-#define FRAG_FIRST 0X0002     //分片是第一个分片
-#define FRAG_LAST 0X0004      //分片是最后一个分片
-#define FRAG_FL_IN 0x0006     //分片列表的第一个分片和最后一个分片都已到达
+#define FRAG_COMPLETE 0X00000001  //分片已经完整
+#define FRAG_FIRST 0X00000002     //分片是第一个分片
+#define FRAG_LAST 0X00000004      //分片是最后一个分片
+#define FRAG_FL_IN 0x00000006     //分片列表的第一个分片和最后一个分片都已到达
 
-
+extern void ip_frag_timer(int delay);
+extern void ip_send_frag(struct pkg_buf *pkg);   //IP分片发送
+extern struct pkg_buf *ip_reass(struct pkg_buf *pkg);   //接收IP分片
 #endif

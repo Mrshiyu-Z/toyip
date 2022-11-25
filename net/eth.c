@@ -45,14 +45,15 @@ int eth_recv(struct pkg_buf *pkg)     //从tap设备读取报文
 
 void eth_rx(void)                    //从tap设备读取报文并处理                
 {
-    struct pkg_buf *pkg = pkg_alloc(MTU_SIZE);
+    struct pkg_buf *pkg;
+    pkg = pkg_alloc(MTU_SIZE);
     if(0 < eth_recv(pkg))
     {
         net_in(pkg);
     }
     else{
         perror("eth_rx: eth_recv error");
-        free(pkg);
+        free_pkg(pkg);
     }
 }
 

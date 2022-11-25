@@ -23,6 +23,7 @@ extern void eth_init(void);    //初始化以太网套接字
 extern int eth_recv(struct pkg_buf *pkg);  //接收以太网数据包
 extern void eth_rx(void); 
 extern void eth_in(void);
+extern void free_pkg(struct pkg_buf *pkg);
 void eth_tx(struct pkg_buf *pkg);
 void net_in(struct pkg_buf *pkg);
 void net_out(struct pkg_buf *pkg,unsigned char *dmac, unsigned short eth_type);

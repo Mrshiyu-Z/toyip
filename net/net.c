@@ -4,6 +4,10 @@
 #include "lib.h"
 #include "ip.h"
 
+void free_pkg(struct pkg_buf *pkg)
+{
+    free(pkg);
+}
 
 void net_in(struct pkg_buf *pkg)
 {
@@ -12,6 +16,7 @@ void net_in(struct pkg_buf *pkg)
         return;
     }
     pkg->pkg_type = htons(eth->ethertype);
+    struct ip_hdr *ip = pkg_2_iphdr(pkg);
     switch (pkg->pkg_type)
     {
         case ETH_TYPE_ARP:
@@ -22,7 +27,7 @@ void net_in(struct pkg_buf *pkg)
             break;
         default:
             perror("unsupported ethertype");
-            free(pkg);
+            free_pkg(pkg);
             break;
     }
 }
@@ -42,6 +47,6 @@ void net_timer(void)
     {
         sleep(1);
         arp_timer(1);
+        // ip_frag_timer(1);
     }
-    
 }

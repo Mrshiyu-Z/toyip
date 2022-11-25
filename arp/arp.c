@@ -105,7 +105,6 @@ free_pkg:
 
 void arp_reply(struct pkg_buf *pkg)     //回复ARP请求
 {
-    printf("arp reply\n");
     struct eth_hdr *eth = (struct eth_hdr *)pkg->data;
     struct arp_hdr *arp = (struct arp_hdr *)eth->data;
     arp->opcode = htons(ARP_REP);
@@ -139,7 +138,6 @@ void arp_reply_handle(struct pkg_buf *pkg)   //处理ARP应答
         ac->ttl = ARP_TIMEOUT;
     }else
     {
-        printf("arp insert\n");
         arp_insert(arp->sip, arp->smac);
     }
 }

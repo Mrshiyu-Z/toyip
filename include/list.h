@@ -10,7 +10,8 @@ struct list_head {
 
 static _inline void list_init(struct list_head *head)
 {
-    head->next = head->prev = head;
+    head->next = head;
+    head->prev = head;
 }
 
 static _inline void list_add_node(struct list_head *node, struct list_head *head)
@@ -32,18 +33,24 @@ static _inline void list_del(struct list_head *node)
 #define list_empty(head) ((head) == (head)->next)
 #define list_first_node(head, type, member) container_of((head)->next, type, member)
 #define list_last_node(head, type, member) container_of((head)->prev, type, member)
-#define LIST_HEAD(name) struct list_head name = { &name, &name };
+#define LIST_HEAD(name)\
+    struct list_head name = { &name, &name };
 
-/* 遍历链表 */
+/* 正向遍历链表 */
 #define list_for_each_node(entry, head, member)\
     for (entry = list_first_node(head, typeof(*entry), member);\
         &entry->member != (head);\
         entry = list_first_node(&entry->member, typeof(*entry), member))
-
 
 /* 反方向遍历链表 */
 #define list_for_each_node_last(entry, head, member)\
     for (entry = list_last_node(head, typeof(*entry), member);\
         &entry->member != (head);\
         entry = list_last_node(&entry->member, typeof(*entry), member))
+
+#define list_for_each_node_safe(entry, tmp, head, member)\
+    for (entry = list_first_node(head, typeof(*entry), member),\
+        tmp = list_first_node(&entry->member, typeof(*entry), member);\
+        &entry->member != (head);\
+        entry = tmp, tmp = list_first_node(&entry->member, typeof(*entry), member))
 #endif

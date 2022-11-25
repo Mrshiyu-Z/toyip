@@ -16,24 +16,41 @@ void ip_recv_local(struct pkg_buf *pkg)
     struct ip_hdr *ip = (struct ip_hdr *)eth->data;
     unsigned short ip_offlags = htons(ip->ip_offlags);
     unsigned short ip_sum = ip->ip_sum;
-    print_ip(ip);
     ip->ip_sum = 0;
     if (ip_sum != ip_checksum(ip)){  //检查校验和是否正确
         perror("ip checksum error");
-        goto free_pkg;
+        free_pkg(pkg);
         return;
     }
-    if (ip_offlags == 0)    //不分片
+    /* 处理分片 */
+    if (htons(ip->ip_offlags) & (IP_FRAGOFF_MASK | IP_FLAG_MF)) //判断是否分片,依据是否存在偏移量或MF位
     {
-        if (ip->ip_proto == 1)  //ICMP
+        if (htons(ip->ip_offlags) & IP_FLAG_DF)
         {
-            icmp_in(pkg);
+            //如果DF位为1,表示不分片,则丢弃
+            perror("ip recv local: DF bit set");
+            free_pkg(pkg);
             return;
         }
+        pkg = ip_reass(pkg);
+        if(!pkg){
+            return;
+        }
+        ip = pkg_2_iphdr(pkg);
     }
-free_pkg:
-    free(pkg);
-    return;
+    switch (ip->ip_proto)
+    {
+        case IP_PROTO_ICMP:
+            icmp_in(pkg);
+            break;
+        case IP_PROTO_TCP:
+            break;
+        case IP_PROTO_UDP:
+            break;
+        default:
+            free(pkg);
+            break;
+    }
 }
 
 void ip_recv_route(struct pkg_buf *pkg)
@@ -42,7 +59,12 @@ void ip_recv_route(struct pkg_buf *pkg)
     struct ip_hdr *ip = (struct ip_hdr *)eth->data;
     if (check_ip_lo(ip->ip_dst)){
         ip_recv_local(pkg);
+    }else
+    {
+        printf("dst not is local\n");
+        free_pkg(pkg);
     }
+    
 }
 
 inline int check_ip_lo(unsigned char *ip)

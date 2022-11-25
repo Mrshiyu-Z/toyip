@@ -12,20 +12,18 @@ void print_icmp(struct icmp_hdr *icmp)
     printf("icmp_type: %x\n", icmp->type);
     printf("icmp_code: %x\n", icmp->code);
     printf("icmp_csum: %d\n", icmp->csum);
-    // struct icmp_v4_echo *echo = (struct icmp_v4_echo *)icmp->data;
-    // printf("icmp_id: %d\n", echo->id);
-    // printf("icmp_seq: %d\n", echo->seq);
 }
 
 unsigned short icmp_checksum(struct ip_hdr *ip)
 {
-    return checksum((unsigned char *)ip->data, htons(ip->ip_len) - ip->ip_hlen*4);
+    return checksum((unsigned char *)ip->data, htons(ip->ip_len) - ip_hlen(ip));
 }
 
 void icmp_set_checksum(struct ip_hdr *ip, struct icmp_hdr *icmp)
 {
-    icmp->csum = 0;
-    icmp->csum = checksum((unsigned char *)ip->data, 8);
+    icmp->csum = 0x00;
+    icmp->csum = icmp_checksum(ip);
+    // icmp->csum = checksum((unsigned char *)ip->data, htons(ip->ip_len) - ip->ip_hlen*4);
 }
 
 unsigned short icmp_id = 1;
@@ -53,7 +51,7 @@ void icmp_echo_reply(struct pkg_buf *pkg)
     struct icmp_hdr *icmp = (struct icmp_hdr *)ip->data;
     icmp->type = 0;
     icmp_set_checksum(ip, icmp);
-    ip_send_info(pkg, 0, ICMP_HDR_LEN + IP_HDR_LEN, IP_PROTO_ICMP, ip->ip_src);
+    ip_send_info(pkg, 0, htons(ip->ip_len), IP_PROTO_ICMP, ip->ip_src);
     return;
 }
 
@@ -62,7 +60,7 @@ void icmp_in(struct pkg_buf *pkg)
     struct eth_hdr *eth = (struct eth_hdr *)pkg->data;
     struct ip_hdr *ip = (struct ip_hdr *)eth->data;
     struct icmp_hdr *icmp = (struct icmp_hdr *)ip->data;
-    if (icmp->type != 0 && icmp->type != 0){
+    if (icmp->type != 0 && icmp->type != 8){
         perror("icmp type error");
         goto free_pkg;
         return;

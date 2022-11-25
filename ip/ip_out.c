@@ -33,7 +33,6 @@ void ip_set_checksum(struct ip_hdr *ip)
 {
     ip->ip_sum = 0;
     ip->ip_sum = checksum((unsigned char *)ip, ip->ip_hlen*4);
-    // printf("ip set checksum: %d\n", ip->ip_sum);
 }
 
 void ip_send_dev(struct pkg_buf *pkg)
@@ -64,20 +63,21 @@ void ip_send_out(struct pkg_buf *pkg)
 {
     struct eth_hdr *eth = (struct eth_hdr *)pkg->data;
     struct ip_hdr *ip = (struct ip_hdr *)eth->data;
+    
     pkg->pkg_pro = ETH_TYPE_IP;
     ip_set_checksum(ip);
     if(htons(ip->ip_len) > MTU_SIZE)
     {
-        return;
-    }else{
+        ip_send_frag(pkg);
+    }else
+    {
         ip_send_dev(pkg);
     }
-    return;
 }
 
 unsigned short ip_id = 0;
 void ip_send_info(struct pkg_buf *pkg, unsigned char ip_tos,unsigned short ip_len, 
-        unsigned char ip_proto, unsigned char ip_dst[4])
+        unsigned char ip_proto, unsigned char *ip_dst)
 {
     struct eth_hdr *eth = (struct eth_hdr *)pkg->data;
     struct ip_hdr *ip = (struct ip_hdr *)eth->data;
@@ -89,7 +89,7 @@ void ip_send_info(struct pkg_buf *pkg, unsigned char ip_tos,unsigned short ip_le
     ip->ip_offlags = htons(0x4000);     //不分片
     ip->ip_ttl = IP_TTL_;
     ip->ip_proto = ip_proto;
+    memcpy(ip->ip_dst, ip_dst, 4); 
     cp_ip_lo(ip->ip_src);        //源IP地址设置为本机IP地址
-    memcpy(ip->ip_dst, ip_dst, 4);
     ip_send_out(pkg);
 }

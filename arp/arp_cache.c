@@ -84,7 +84,7 @@ void arp_queue_drop(struct arp_cache *ac)           //删除缓存
     {
         pkg = list_first_node(&ac->list, struct pkg_buf, list);
         list_del(ac->list.next);
-        free(pkg);
+        free_pkg(pkg);
     }
 }
 

@@ -7,8 +7,14 @@ int pkbs = 0;
 
 struct pkg_buf *pkg_alloc(int size)
 {
-    struct pkg_buf *pkg;
-    pkg = malloc(sizeof(*pkg) + size);
+    struct pkg_buf *pkg = NULL;
+    pkg = (struct pkg_buf *)malloc(sizeof(struct pkg_buf) + size);
+    // printf("malloc pkg: %p\n", pkg);
+    if(NULL == pkg){
+        perror("malloc pkg failed");
+        return NULL;
+    }
+    // printf("pkg_alloc: %p\n", pkg);
     pkg->pkg_pro = 0xffff;
     pkg->pkg_type = 0;
     pkg->pkg_len = size;
@@ -16,6 +22,7 @@ struct pkg_buf *pkg_alloc(int size)
     if (pkbs < MAX_PKGS)
     {
         pkbs++;
+        // printf("re_pkg_alloc: %p\n", pkg);
         return pkg;
     }
     else{
