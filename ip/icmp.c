@@ -23,7 +23,6 @@ void icmp_set_checksum(struct ip_hdr *ip, struct icmp_hdr *icmp)
 {
     icmp->csum = 0x00;
     icmp->csum = icmp_checksum(ip);
-    // icmp->csum = checksum((unsigned char *)ip->data, htons(ip->ip_len) - ip->ip_hlen*4);
 }
 
 unsigned short icmp_id = 1;
@@ -63,10 +62,10 @@ void icmp_in(struct pkg_buf *pkg)
     if (icmp->type != 0 && icmp->type != 8){
         perror("icmp type error");
         goto free_pkg;
-        return;
     }
     unsigned short icmp_sum = icmp->csum;
     icmp->csum = 0;
+    printf("icmp_sum: %x %x\n", icmp_sum, icmp_checksum(ip));
     if (icmp_sum != icmp_checksum(ip)){
         perror("icmp checksum error");
         goto free_pkg;

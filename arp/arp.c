@@ -63,6 +63,7 @@ void arp_send_request(struct arp_cache *ac)
     cp_mac_lo(arp->smac);
     memcpy(arp->dmac, mac_multicast, ETH_MAC_LEN);   //目的地址为组播地址
     memcpy(arp->dip, ac->ip, IP_ADDR_LEN);
+    printf("who has %d.%d.%d.%d tell %d.%d.%d.%d\n", arp->dip[0], arp->dip[1], arp->dip[2], arp->dip[3], arp->sip[0], arp->sip[1], arp->sip[2], arp->sip[3]);
     net_out(pkg, arp->dmac,ETH_TYPE_ARP);
 }
 
@@ -132,7 +133,8 @@ void arp_reply_handle(struct pkg_buf *pkg)   //处理ARP应答
         if (ac->state == ARP_PENDDING)
         {
             arp_queue_send(ac);
-            printf("arp get %d.%d.%d.%d mac\n",ac->ip[0], ac->ip[1], ac->ip[2], ac->ip[3]);
+            printf("%d.%d.%d.%d is at %02x:%02x:%02x:%02x:%02x:%02x\n", arp->sip[0], arp->sip[1], arp->sip[2], arp->sip[3],
+                     arp->smac[0], arp->smac[1], arp->smac[2], arp->smac[3], arp->smac[4], arp->smac[5]);
         }
         ac->state = ARP_RESOLVED;
         ac->ttl = ARP_TIMEOUT;

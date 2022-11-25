@@ -62,15 +62,16 @@ struct pkg_buf *reass_frag(struct fragment *frag)
 
     /* 复制以太网头 */
     memcpy(p, frag_pkg->data, ETH_HDR_LEN + hlen);
-    /* 因为是组装成一个IP包,所以ip_offlags赋值为0 */
+    /* 组装成一个IP包,ip_offlags赋值为0 */
     pkg_2_iphdr(pkg)->ip_offlags = 0;
+    /* */
     pkg_2_iphdr(pkg)->ip_len = htons(len);
     /* p指针移动到IP包的data地址 */
     p += ETH_HDR_LEN + hlen;
     /* 轮询每个IP分片 */
     list_for_each_node(frag_pkg, &frag->frag_pkg, list){
-        printf("frag_pkg: %p, frag_ip_len: %d\n", frag_pkg, htons(frag_ip->ip_len));
         frag_ip = pkg_2_iphdr(frag_pkg);
+        printf("frag_ip->off: %d\n", (htons(frag_ip->ip_offlags) & IP_FRAGOFF_MASK) * 8);
         /* 复制每个IP分片的数据部分 */
         memcpy(p, (char *)frag_ip + hlen, htons(frag_ip->ip_len) - hlen);
         /* 移动P指针到刚复制的数据尾部 */
@@ -124,7 +125,6 @@ int insert_frag(struct pkg_buf *pkg, struct fragment *frag)
     struct ip_hdr *ip, *frag_ip;
     struct list_head *pos;
     int off, hlen;
-    printf("insert_frag: %p\n", pkg);
     /* 如果分片已经完整,释放收到的这个分片 */
     if(complete_frag(frag)){
         perror("insert_frag: complete_frag\n");

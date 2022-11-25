@@ -42,7 +42,6 @@ void ip_send_dev(struct pkg_buf *pkg)
     struct arp_cache *ac = arp_cache_lookup_resolved(ip->ip_dst);
     if (ac == NULL)
     {
-        printf("arp cache not found\n");
         ac = arp_alloc();
         if (ac == NULL)
         {
