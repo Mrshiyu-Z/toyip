@@ -1,3 +1,2 @@
-# tcpip_study
-
-记录学习TCP/IP协议栈的过程
+# linux network strudy
+tcpip protocol stack implemented in c
