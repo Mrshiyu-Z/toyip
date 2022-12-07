@@ -25,7 +25,6 @@ void net_stack_init(void)
 
 void net_stack_run(void)
 {
-    // eth_in();
     threads[0] = newthread((pfunc_t)eth_in);
     threads[1] = newthread((pfunc_t)net_timer);
     unsigned char ip[4] = {10,0,0,2};

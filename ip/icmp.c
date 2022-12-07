@@ -65,7 +65,6 @@ void icmp_in(struct pkg_buf *pkg)
     }
     unsigned short icmp_sum = icmp->csum;
     icmp->csum = 0;
-    printf("icmp_sum: %x %x\n", icmp_sum, icmp_checksum(ip));
     if (icmp_sum != icmp_checksum(ip)){
         perror("icmp checksum error");
         goto free_pkg;

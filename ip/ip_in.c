@@ -16,6 +16,7 @@ void ip_recv_local(struct pkg_buf *pkg)
     struct ip_hdr *ip = (struct ip_hdr *)eth->data;
     unsigned short ip_offlags = htons(ip->ip_offlags);
     unsigned short ip_sum = ip->ip_sum;
+    struct icmp_hdr *icmp = (struct icmp_hdr *)ip->data;
     ip->ip_sum = 0;
     if (ip_sum != ip_checksum(ip)){  //检查校验和是否正确
         perror("ip checksum error");
@@ -23,7 +24,7 @@ void ip_recv_local(struct pkg_buf *pkg)
         return;
     }
     /* 处理分片 */
-    if (htons(ip->ip_offlags) & (IP_FRAGOFF_MASK | IP_FLAG_MF)) //判断是否分片,依据是否存在偏移量或MF位
+    if (htons(ip->ip_offlags) & (IP_FRAGOFF_MASK | IP_FLAG_MF)) //判断是否分片,根据是否存在偏移量或MF位
     {
         if (htons(ip->ip_offlags) & IP_FLAG_DF)
         {

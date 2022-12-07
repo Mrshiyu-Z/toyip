@@ -10,7 +10,7 @@ static inline int full_frag(struct fragment *frag)
     /*
     * 判断分片是否收取完整
     * 当第一个分片到达时,(frag->frag_flags |= 0x0002) == 0x0002
-    * 当最后一个分片到达时,(frag->frag_flags |= 0x0004) == 0x0006 (二进制 或等 计算)
+    * 当最后一个分片到达时,(frag->frag_flags |= 0x0004) == 0x0006 (使用二进制 或 计算)
     */
     return (((frag->frag_flags & FRAG_FL_IN) == FRAG_FL_IN) && 
             (frag->frag_rec_size == frag->frag_size));
@@ -32,7 +32,6 @@ void delete_frag(struct fragment *frag)
     while (!list_empty(&frag->frag_pkg)){
         pkg = list_first_node(&frag->frag_pkg, struct pkg_buf, list);
         list_del(&pkg->list);
-        printf("pkg_delete: %p\n", pkg);
         free_pkg(pkg);
     }
     /* 删除分片 */
@@ -64,14 +63,12 @@ struct pkg_buf *reass_frag(struct fragment *frag)
     memcpy(p, frag_pkg->data, ETH_HDR_LEN + hlen);
     /* 组装成一个IP包,ip_offlags赋值为0 */
     pkg_2_iphdr(pkg)->ip_offlags = 0;
-    /* */
     pkg_2_iphdr(pkg)->ip_len = htons(len);
     /* p指针移动到IP包的data地址 */
     p += ETH_HDR_LEN + hlen;
     /* 轮询每个IP分片 */
     list_for_each_node(frag_pkg, &frag->frag_pkg, list){
         frag_ip = pkg_2_iphdr(frag_pkg);
-        printf("frag_ip->off: %d\n", (htons(frag_ip->ip_offlags) & IP_FRAGOFF_MASK) * 8);
         /* 复制每个IP分片的数据部分 */
         memcpy(p, (char *)frag_ip + hlen, htons(frag_ip->ip_len) - hlen);
         /* 移动P指针到刚复制的数据尾部 */
