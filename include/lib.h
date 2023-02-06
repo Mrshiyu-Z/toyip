@@ -17,6 +17,12 @@
 /*pthread*/
 #include <pthread.h>
 
+#define min(x,y) ({\
+    typeof(x) _x = (x);\
+    typeof(y) _y = (y);\
+    (void)(&_x == &_y);\
+    _x < _y ? _x : _y;})
+
 typedef void *(*pfunc_t)(void *); //函数指针,返回一个void *类型的指针,参数是一个void *类型的指针
 
 void net_timer(void); //定时器

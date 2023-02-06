@@ -53,4 +53,18 @@ static _inline void list_del(struct list_head *node)
         tmp = list_first_node(&entry->member, typeof(*entry), member);\
         &entry->member != (head);\
         entry = tmp, tmp = list_first_node(&entry->member, typeof(*entry), member))
+/*
+* Hash list
+*
+*/
+// hash list head
+struct hlist_head {
+    struct hlist_node *first;
+};
+
+struct hlist_node {
+    struct hlist_node *next;
+    struct hlist_node **pprev;
+};
+
 #endif
