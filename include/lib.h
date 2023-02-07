@@ -31,6 +31,11 @@ void net_stack_run(void); //开启线程
 extern unsigned short checksum(unsigned char *buf, int count);
 
 struct ip_hdr;
+struct icmp_hdr;
 extern void ip_set_checksum(struct ip_hdr *ip);
+extern unsigned short ip_checksum(struct ip_hdr *ip);
+extern unsigned short icmp_checksum(struct ip_hdr *ip);
+void icmp_set_checksum(struct ip_hdr *ip, struct icmp_hdr *icmp);
+unsigned short tcp_checksum(struct ip_hdr *ip);
 
 #endif

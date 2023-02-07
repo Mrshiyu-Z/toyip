@@ -14,17 +14,6 @@ void print_icmp(struct icmp_hdr *icmp)
     printf("icmp_csum: %d\n", icmp->csum);
 }
 
-unsigned short icmp_checksum(struct ip_hdr *ip)
-{
-    return checksum((unsigned char *)ip->data, htons(ip->ip_len) - ip_hlen(ip));
-}
-
-void icmp_set_checksum(struct ip_hdr *ip, struct icmp_hdr *icmp)
-{
-    icmp->csum = 0x00;
-    icmp->csum = icmp_checksum(ip);
-}
-
 unsigned short icmp_id = 1;
 void icmp_echo(unsigned char *ip){
     struct pkg_buf *pkg = pkg_alloc(ICMP_HDR_LEN + IP_HDR_LEN + ETH_HDR_LEN);

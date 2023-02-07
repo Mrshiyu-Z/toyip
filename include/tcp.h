@@ -58,7 +58,6 @@ struct tcp_sock {
     struct tcpip_wait *wait_connect;
     struct tcp_sock *parent;
     unsigned int flags;
-    
 };
 
 #endif

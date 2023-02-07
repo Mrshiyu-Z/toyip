@@ -4,12 +4,6 @@
 #include "icmp.h"
 #include "ip.h"
 
-
-unsigned short ip_checksum(struct ip_hdr *ip)
-{
-    return checksum((unsigned char *)ip, ip->ip_hlen*4);
-}
-
 void ip_recv_local(struct pkg_buf *pkg)
 {
     struct eth_hdr *eth = (struct eth_hdr *)pkg->data;
