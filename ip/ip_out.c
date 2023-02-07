@@ -29,12 +29,6 @@ inline void cp_ip_lo(unsigned char *ip)
     ip[2] = 0;ip[3] = 1;
 }
 
-void ip_set_checksum(struct ip_hdr *ip)
-{
-    ip->ip_sum = 0;
-    ip->ip_sum = checksum((unsigned char *)ip, ip->ip_hlen*4);
-}
-
 void ip_send_dev(struct pkg_buf *pkg)
 {
     struct eth_hdr *eth = (struct eth_hdr *)pkg->data;

@@ -2,6 +2,8 @@
 #define __IP_H
 
 #include "eth.h"
+#include "lib.h"
+#include "list.h"
 
 struct ip_hdr{
     /* 实际上ip_ver在ip_hlen前面,因为字节序问题,这里为了方便,这样排 */
@@ -45,8 +47,6 @@ struct ip_hdr{
 extern void ip_recv_route(struct pkg_buf *pkg);
 void ip_send_info(struct pkg_buf *pkg, unsigned char ip_tos,unsigned short ip_len, 
         unsigned char ip_proto, unsigned char ip_dst[4]);
-extern unsigned short checksum(unsigned char *buf, int count);
-extern void ip_set_checksum(struct ip_hdr *ip);
 extern inline int check_ip_lo(unsigned char *ip);
 extern inline void cp_ip_lo(unsigned char *ip);
 extern void print_ip(struct ip_hdr *ip);

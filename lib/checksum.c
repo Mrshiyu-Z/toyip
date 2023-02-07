@@ -1,8 +1,8 @@
 #include "net.h"
 #include "ip.h"
+#include "lib.h"
 
-unsigned short checksum(unsigned char *buf, int count)
-{
+unsigned short checksum(unsigned char *buf, int count){
     unsigned int sum = 0;
     unsigned short *pkg = (unsigned short *)buf;
     while (count > 1)
@@ -20,4 +20,9 @@ unsigned short checksum(unsigned char *buf, int count)
     }
 
     return ~sum;
+}
+
+void ip_set_checksum(struct ip_hdr *ip){
+    ip->ip_sum = 0;
+    ip->ip_sum = checksum((unsigned char *)ip, ip->ip_hlen*4);
 }

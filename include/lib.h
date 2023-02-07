@@ -28,4 +28,9 @@ typedef void *(*pfunc_t)(void *); //函数指针,返回一个void *类型的指�
 void net_timer(void); //定时器
 void net_stack_run(void); //开启线程
 
+extern unsigned short checksum(unsigned char *buf, int count);
+
+struct ip_hdr;
+extern void ip_set_checksum(struct ip_hdr *ip);
+
 #endif

@@ -2,6 +2,7 @@
 #define __LIST_H__
 
 #include "lib.h"
+#include "list.h"
 #include "compile.h"
 
 struct list_head {

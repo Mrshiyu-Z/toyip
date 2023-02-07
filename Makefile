@@ -6,6 +6,7 @@ export CC CFLAGS
 NET_STACK_OBJS = arp/arp_obj.o \
 		ip/ip_obj.o \
 		net/net_obj.o \
+		lib/lib_obj.o
 
 all:tap
 tap:$(NET_STACK_OBJS)
@@ -17,6 +18,8 @@ ip/ip_obj.o:ip/*.c
 	@make -C ip/
 net/net_obj.o:net/*.c
 	@make -C net/
+lib/lib_obj.o:lib/*.c
+	@make -C lib/
 
 clean:
 	@rm -rf tap
@@ -24,3 +27,4 @@ clean:
 	@make -C arp/ clean
 	@make -C ip/ clean
 	@make -C net/ clean
+	@make -C lib/ clean

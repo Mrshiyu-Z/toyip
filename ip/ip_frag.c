@@ -1,6 +1,7 @@
 #include "list.h"
 #include "eth.h"
 #include "net.h"
+#include "lib.h"
 #include "ip.h"
 
 static LIST_HEAD(frag_head); //不同分片链表的头节点组成的链表
@@ -91,8 +92,8 @@ struct fragment *new_frag(struct ip_hdr *ip)
     frag->frag_ttl = FRAG_TIME_OUT;
     frag->frag_id = ip->ip_id;
     frag->frag_proto = ip->ip_proto;
-    strncpy(frag->frag_src, ip->ip_src, 4);
-    strncpy(frag->frag_dst, ip->ip_dst, 4);
+    strncpy((unsigned char *)frag->frag_src, (const char *)ip->ip_src, 4);
+    strncpy((unsigned char *)frag->frag_dst, (const char *)ip->ip_dst, 4);
     frag->frag_hlen = 0;
     frag->frag_rec_size = 0;
     frag->frag_size = 0;
@@ -109,8 +110,8 @@ struct fragment *lookup_frag_head(struct ip_hdr *ip)
     {
         if (frag->frag_id == ip->ip_id &&
             frag->frag_proto == ip->ip_proto &&
-            strncmp(frag->frag_src, ip->ip_src, 4) == 0 &&
-            strncmp(frag->frag_dst, ip->ip_dst, 4) == 0)
+            strncmp((const char *)frag->frag_src, (const char *)ip->ip_src, 4) == 0 &&
+            strncmp((const char *)frag->frag_dst, (const char *)ip->ip_dst, 4) == 0)
             return frag;
     }
     return NULL;
@@ -279,7 +280,7 @@ void ip_frag_timer(int delay)
         }
         frag->frag_ttl -= delay;
         if (frag->frag_ttl <= 0){
-            struct pkg_buf *pkg = list_first_node(&frag->frag_pkg, struct pkg_buf, list);
+            // struct pkg_buf *pkg = list_first_node(&frag->frag_pkg, struct pkg_buf, list);
             delete_frag(frag);
         }
     }

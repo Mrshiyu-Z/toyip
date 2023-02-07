@@ -16,7 +16,7 @@ void net_in(struct pkg_buf *pkg)
         return;
     }
     pkg->pkg_type = htons(eth->ethertype);
-    struct ip_hdr *ip = pkg_2_iphdr(pkg);
+    // struct ip_hdr *ip = pkg_2_iphdr(pkg);
     switch (pkg->pkg_type)
     {
         case ETH_TYPE_ARP:
