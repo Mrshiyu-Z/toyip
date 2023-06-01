@@ -17,6 +17,10 @@
 
 static int skfd;
 
+/*
+    申请一个tap设备
+    @dev:   tap设备的名称
+*/
 int alloc_tap(char *dev)
 {
     struct ifreq ifr = {0};
@@ -28,5 +32,4 @@ int alloc_tap(char *dev)
         return -1;
     }
     memset(&ifr, 0, sizeof(ifr));
-    ifr.ifr
 }

@@ -1,5 +1,57 @@
 #ifndef __NETIF_H__
 #define __NETIF_H__
 
+#define NETDEV_MAC_LEN 6
+#define NETDEV_NAME_LEN 16
+
+#include "compile.h"
+#include "list.h"
+
+struct pkbuf;
+struct netdev;
+
+struct netstats {                 // 网络设备的统计信息
+    unsigned int rx_packets;      // 接收包的数量
+    unsigned int tx_packets;      // 发送包的数量
+    unsigned int rx_bytes;        // 接收字节的数量
+    unsigned int tx_bytes;        // 发送字节的数量
+    unsigned int rx_errors;       // 接收错误的数量
+    unsigned int tx_errors;       // 发送错误的数量
+};
+
+struct netdev_ops {                                  // 网络设备操作函数
+    int (*xmit)(struct netdev *, struct pkbuf *);    // 发送数据包
+    int (*init)(struct netdev *);                    // 初始化网络设备
+    void (*exit)(struct netdev *);                   // 退出网络设备
+};
+
+struct netdev {                                 // 网络设备结构
+    int net_mtu;                                // 网络设备的最大传输单元
+    unsigned int net_ipaddr;                    // 网络设备的IP地址
+    unsigned int net_mask;                      // 网络设备的子网掩码
+    unsigned char net_hwaddr[NETDEV_MAC_LEN];   // 网络设备的MAC地址
+    unsigned char net_name[NETDEV_NAME_LEN];    // 网络设备的名称
+    struct netdev_ops *net_ops;                 // 网络设备的操作函数
+    struct netstats net_stats;                  // 网络设备的统计信息
+    struct list_head net_list;                  // 用于将网络设备添加到链表中
+};
+
+struct tapdev {             // tap设备结构
+    struct netdev dev;      // 网络设备结构
+    int fd;                 // tap设备的文件描述符
+};
+
+struct pkbuf {                          // 网络包结构
+    struct list_head pk_list;           // 用于将网络包添加到链表中
+    unsigned short pk_protocol;         // 网络包的协议类型
+    unsigned short pk_type;             // 网络包的类型
+    int pk_len;                         // 网络包的长度
+    int pk_refcnt;                      // 网络包的引用计数
+    struct netdev *pk_indev;            // 网络包的入口设备
+    // struct sock *pk_sk;
+    unsigned char pk_data[0];           // 网络包的数据
+}__attribute__((packed));
+
+struct netdev *netdev_alloc(char *dev, struct netdev_ops *);
 
 #endif
