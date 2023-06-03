@@ -54,4 +54,5 @@ struct pkbuf {                          // 网络包结构
 
 struct netdev *netdev_alloc(char *dev, struct netdev_ops *);
 
+extern void netdev_init(void);
 #endif

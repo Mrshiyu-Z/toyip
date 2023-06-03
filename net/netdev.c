@@ -5,6 +5,9 @@
 /* 本地网络设备链表 */
 struct list_head netdev_list;
 
+extern void veth_init(void);
+extern void veth_exit(void);
+
 /*
     分配并初始化网络设备
     @devstr:    网络设备的名称
@@ -28,7 +31,11 @@ struct netdev *netdev_alloc(char *devstr, struct netdev_ops *netops)
     return dev;
 }
 
+/*
+    初始化网络设备
+*/
 void netdev_init(void)
 {
-    list_init(&netdev_list);   
+    list_init(&netdev_list);
+    veth_init();
 }

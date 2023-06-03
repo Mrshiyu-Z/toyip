@@ -24,8 +24,14 @@
     @args:  可变参数
 */
 #define ferr(fmt, args...) fprintf(stderr, fmt, ##args)
-
-
+/*
+    用于格式化调试信息的输出
+    @fmt:   输出的格式
+    @args:  可变参数
+    @(int)gettid(): 获取当前线程的ID
+    @__FUNCTION__:  获取当前函数的名称
+*/
+#define dbg(fmt, args...) ferr("[%d]%s " fmt "\n", (int)gettid(), __FUNCTION__, ##args)
 
 extern void *xzalloc(int size);
 extern void *xmalloc(int size);

@@ -1,9 +1,9 @@
 #include "lib.h"
-
+#include "netif.h"
 
 void net_stack_init(void)
 {
-    
+    netdev_init();
 }
 
 
