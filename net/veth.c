@@ -25,11 +25,12 @@ static int tap_dev_init(void)
     getmtu_tap(tap->dev.net_name, &tap->dev.net_mtu);         // 获取tap设备的MTU
     gethwaddr_tap(tap->fd, tap->dev.net_hwaddr);              // 获取tap设备的MAC地址
     setipaddr_tap(tap->dev.net_name, FAKE_IPADDR);            // 设置tap设备的IP地址
-    getipaddr_tap(tap->dev.net_name, tap->dev.net_ipaddr);    // 获取tap设备的IP地址
+    getipaddr_tap(tap->dev.net_name, &tap->dev.net_ipaddr);   // 获取tap设备的IP地址
     setnetmask_tap(tap->dev.net_name, FAKE_TAP_NETMASK);      // 设置tap设备的子网掩码
     setup_tap(tap->dev.net_name);                             // 设置tap设备的UP状态
     unset_tap();                                              // 关闭tap设备
     list_init(&tap->dev.net_list);                            // 初始化tap设备的链表
+    return 0;
 close_tap:
     close(tap->fd);
 free_tap:
@@ -76,12 +77,12 @@ static void veth_xmit(struct netdev *dev, struct pkbuf *pkb)
     l = write(tap->fd, pkb->pk_data, pkb->pk_len);
     if (l != pkb->pk_len)
     {
-        devdbg("write net dev");
-        dev->net_stat.tx_dropped++;
+        dbg("write net dev");
+        dev->net_stats.tx_errors++;
     } else {
         dev->net_stats.tx_packets++;
         dev->net_stats.tx_bytes += l;
-        devdbg("write net dev size: %d\n", l);
+        dbg("write net dev size: %d\n", l);
     }
     return l;
 }

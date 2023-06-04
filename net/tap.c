@@ -91,7 +91,7 @@ void gethwaddr_tap(int tap_fd, unsigned char *ha)
     struct ifreq ifr;
     memset(&ifr, 0x0, sizeof(ifr));
     if (ioctl(tap_fd, SIOCGIFHWADDR, (void *)&ifr) < 0)
-        perrx("ioctl SIOCGIFHWADDR")
+        perrx("ioctl SIOCGIFHWADDR");
     hwcpy(ha, ifr.ifr_hwaddr.sa_data);
     dbg("hwaddr: %02x:%02x:%02x:%02x:%02x:%02x",
         ha[0], ha[1], ha[2], ha[3], ha[4], ha[5]);
@@ -201,17 +201,12 @@ void setnetmask_tap(unsigned char *name, unsigned int netmask)
     @set:       是否设置标志位
     标志位举例(包括但不仅限于):
         IFF_UP:     接口是否启动
-        IFF_BROADCAST:  广播地址是否有效
-        IFF_DEBUG:  调试标志
-        IFF_LOOPBACK:   是否是环回接口
-        IFF_POINTOPOINT:    是否是点对点接口
-        IFF_RUNNING:    接口是否正在运行
-        IFF_NOARP:  是否不使用ARP协议
 */
 void setflags_tap(unsigned char *name, unsigned short flags, int set)
 {
     struct ifreq ifr;
     memset(&ifr, 0x0, sizeof(ifr));
+    strcpy(ifr.ifr_name, (char *)name);
     if (ioctl(skfd, SIOCGIFFLAGS, (void *)&ifr) < 0) {
 		close(skfd);
 		perrx("socket SIOCGIFFLAGS");

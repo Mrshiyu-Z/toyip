@@ -31,4 +31,7 @@ static inline void hwcpy(void *dst, void *src)
     memcpy(dst, src, ETH_ALEN);
 }
 
+#define macfmt(ha) (ha)[0], (ha)[1], (ha)[2], (ha)[3], (ha)[4], (ha)[5]
+#define MACFMT "%02x:%02x:%02x:%02x:%02x:%02x"
+
 #endif

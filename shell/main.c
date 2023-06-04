@@ -9,5 +9,6 @@ void net_stack_init(void)
 
 int main(int argc, char **argv)
 {
+    net_stack_init();
     return 0;
 }
