@@ -31,7 +31,61 @@ static inline void hwcpy(void *dst, void *src)
     memcpy(dst, src, ETH_ALEN);
 }
 
+/*
+    比较MAC地址
+    @hw1:   MAC地址1
+    @hw2:   MAC地址2    
+*/
+static inline int hwacmp(void *hw1, void *hw2)
+{
+    return memcmp(hw1, hw2, ETH_ALEN);
+}
+
+/*
+    设置MAC地址
+    @dst:   MAC地址
+    @val:   MAC地址的值
+*/
+static inline void hwaset(void *dst, int val)
+{
+    memset(dst, val, ETH_ALEN);
+}
+
 #define macfmt(ha) (ha)[0], (ha)[1], (ha)[2], (ha)[3], (ha)[4], (ha)[5]
 #define MACFMT "%02x:%02x:%02x:%02x:%02x:%02x"
+
+/*
+    以太网协议类型
+    @proto: 协议类型
+*/
+static inline char *ethpro(unsigned short proto)
+{
+    if (proto == ETH_P_IP)
+        return "IP";
+    else if (proto == ETH_P_ARP)
+        return "ARP";
+    else if (proto == ETH_P_RARP)
+        return "RARP";
+    else
+        return "OTHER";
+}
+
+/*
+    判断是否为组播地址
+    @mac:   MAC地址
+*/
+static inline int is_eth_multicast(unsigned char *mac)
+{
+    return (mac[0] & 0x01);
+}
+
+/*
+    判断是否为广播地址
+    @mac:   MAC地址
+*/
+static inline int is_eth_broadcast(unsigned char *mac)
+{
+    return (mac[0] & mac[1] & mac[2] & mac[3] & mac[4] & mac[5]) == 0xff;
+}
 
 #endif

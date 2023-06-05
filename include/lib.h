@@ -8,7 +8,7 @@
 #include <fcntl.h>
 #include <string.h>
 #include <sys/ioctl.h>
-#include <poll.h>
+#include <sys/epoll.h>
 #include <errno.h>
 #include <signal.h>
 #include <assert.h>

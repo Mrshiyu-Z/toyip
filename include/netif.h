@@ -52,7 +52,34 @@ struct pkbuf {                          // 网络包结构
     unsigned char pk_data[0];           // 网络包的数据
 }__attribute__((packed));
 
-struct netdev *netdev_alloc(char *dev, struct netdev_ops *);
+/*
+    定义数据包硬件地址类型
+*/
+#define PKT_NONE 0
+#define PKT_LOCALHOST	1
+#define PKT_OTHERHOST	2
+#define PKT_MULTICAST	3
+#define PKT_BROADCAST	4
+
+/*
+   网络字节序转换为主机字节序 
+*/
+static _inline unsigned short _htons(unsigned short host)
+{
+    return (host >> 8) | ((host << 8) & 0xff00);
+}
+
+#define _ntohs(net) _htons(net)
+
+extern void netdev_init(void);
+extern struct netdev *netdev_alloc(char *devstr, struct netdev_ops *netops);
+extern void netdev_interrupt(void);
+
+extern void net_in(struct netdev *dev, struct pkbuf *pkb);
+
+extern struct pkbuf *alloc_pkb(int size);
+extern struct pkbuf *alloc_netdev_pkb(struct netdev *nd);
+extern void free_pkb(struct pkbuf *pkb);
 
 extern void netdev_init(void);
 #endif

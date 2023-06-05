@@ -24,7 +24,7 @@ static int tap_dev_init(void)
     getname_tap(tap->fd, tap->dev.net_name);                  // 获取tap设备的名称
     getmtu_tap(tap->dev.net_name, &tap->dev.net_mtu);         // 获取tap设备的MTU
     gethwaddr_tap(tap->fd, tap->dev.net_hwaddr);              // 获取tap设备的MAC地址
-    setipaddr_tap(tap->dev.net_name, FAKE_IPADDR);            // 设置tap设备的IP地址
+    setipaddr_tap(tap->dev.net_name, FAKE_TAP_ADDR);          // 设置tap设备的IP地址
     getipaddr_tap(tap->dev.net_name, &tap->dev.net_ipaddr);   // 获取tap设备的IP地址
     setnetmask_tap(tap->dev.net_name, FAKE_TAP_NETMASK);      // 设置tap设备的子网掩码
     setup_tap(tap->dev.net_name);                             // 设置tap设备的UP状态
@@ -87,11 +87,71 @@ static void veth_xmit(struct netdev *dev, struct pkbuf *pkb)
     return l;
 }
 
+/*
+    虚拟网卡的操作函数
+*/
 static struct netdev_ops veth_ops = {
     .init = veth_dev_init,
     .exit = veth_dev_exit,
     .xmit = veth_xmit,
 };
+
+/*
+    从虚拟网卡接收数据包
+    @pkb:   数据包
+*/
+static int veth_recv(struct pkbuf *pkb)
+{
+    int l;
+    l = read(tap->fd, pkb->pk_data, pkb->pk_len);
+    if (l <= 0){
+        dbg("veth read net dev");
+        veth->net_stats.rx_errors++;
+    } else {
+        dbg("veth read net dev size: %d\n", l);
+        veth->net_stats.rx_packets++;
+        veth->net_stats.rx_bytes += l;
+        pkb->pk_len = l;
+    }
+    return l;
+}
+
+/*
+    处理虚拟网卡的接收事件
+*/
+void veth_rx(void)
+{
+    struct pkbuf *pkb = alloc_netdev_pkb(veth);
+    if (veth_recv(pkb) > 0)
+        net_in(veth, pkb);
+    else
+        free_pkb(pkb);
+}
+
+/*
+    虚拟网卡的epoll
+*/
+void veth_epoll(void)
+{
+    int epoll_fd = epoll_create(1);
+    if (epoll_fd < 0)
+        perrx("epoll_create");
+    struct epoll_event ev;
+    memset(&ev, 0, sizeof(ev));
+    ev.events = EPOLLIN;
+    ev.data.fd = tap->fd;
+    if (epoll_ctl(epoll_fd, EPOLL_CTL_ADD, tap->fd, &ev) < 0)
+        perrx("epoll_ctl");
+    struct epoll_event event;
+    while(1)
+    {
+        int n = epoll_wait(epoll_fd, &event, 1, -1);
+        if (n < 0)
+            perrx("epoll_wait");
+        if (event.events & EPOLLIN)
+            veth_rx();
+    }
+}
 
 void veth_init(void)
 {

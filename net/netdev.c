@@ -7,6 +7,7 @@ struct list_head netdev_list;
 
 extern void veth_init(void);
 extern void veth_exit(void);
+extern void veth_epoll(void);
 
 /*
     分配并初始化网络设备
@@ -29,6 +30,11 @@ struct netdev *netdev_alloc(char *devstr, struct netdev_ops *netops)
     if (netops && netops->init)
         netops->init(dev);
     return dev;
+}
+
+void netdev_interrupt(void)
+{
+    veth_epoll();
 }
 
 /*
