@@ -162,7 +162,7 @@ void setipaddr_tap(unsigned char *name, unsigned int ipaddr)
     struct sockaddr_in *saddr;
     memset(&ifr, 0x0, sizeof(ifr));
     strcpy(ifr.ifr_name, (char *)name);
-    saddr = (struct sockaddr_int *)&ifr.ifr_addr;
+    saddr = (struct sockaddr_in *)&ifr.ifr_addr;
     saddr->sin_family = AF_INET;
     saddr->sin_addr.s_addr = ipaddr;
     if (ioctl(skfd, SIOCSIFADDR, (void *)&ifr) < 0)

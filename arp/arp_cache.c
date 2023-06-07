@@ -23,7 +23,7 @@ static _inline void arp_cache_lock_init(void)
     pthread_mutexattr_t attr;
     if (pthread_mutexattr_init(&attr) != 0)
         perrx("pthread_mutexattr_init");
-    if (pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_NORMAL));
+    if (pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_NORMAL))
         perrx("pthread_mutexattr_settype");
     if (pthread_mutex_init(&arp_cache_mutex, &attr) != 0)
         perrx("pthread_mutex_init");

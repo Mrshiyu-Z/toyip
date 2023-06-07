@@ -1,7 +1,7 @@
 
 LD = ld
 CC = gcc
-CFLAGS = -Wall -I../include
+CFLAGS = -Wall -Wno-address-of-packed-member -I../include
 LFLAGS = -pthread
 export LD CC CFLAGS
 

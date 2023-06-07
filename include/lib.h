@@ -9,6 +9,7 @@
 #include <string.h>
 #include <sys/ioctl.h>
 #include <sys/epoll.h>
+#include <sys/syscall.h>
 #include <errno.h>
 #include <signal.h>
 #include <assert.h>
@@ -19,6 +20,7 @@
 #include <pthread.h>
 extern int pthread_mutexattr_settype(pthread_mutexattr_t *, int);
 
+#define gettid() syscall(SYS_gettid)
 /*
     用于生成带颜色的字符串
 */

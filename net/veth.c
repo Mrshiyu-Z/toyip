@@ -71,7 +71,7 @@ static void veth_dev_exit(struct netdev *dev)
     @dev:   虚拟网卡的结构体
     @pkb:   数据包
 */
-static void veth_xmit(struct netdev *dev, struct pkbuf *pkb)
+static int veth_xmit(struct netdev *dev, struct pkbuf *pkb)
 {
     int l = 0;
     l = write(tap->fd, pkb->pk_data, pkb->pk_len);
