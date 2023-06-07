@@ -5,6 +5,8 @@
 
 #include "netif.h"
 #include "ether.h"
+#include "ip.h"
+#include "arp.h"
 #include "lib.h"
 #include "netcfg.h"
 
@@ -70,5 +72,16 @@ void net_in(struct netdev *dev, struct pkbuf *pkb)
         default:
             free_pkb(pkb);
             break;
+    }
+}
+
+/*
+    定时器线程
+*/
+void net_timer(void)
+{
+    while(1) {
+        sleep(1);
+        arp_timer(1);
     }
 }

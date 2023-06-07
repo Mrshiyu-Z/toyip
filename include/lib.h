@@ -19,6 +19,7 @@
 /* pthread */
 #include <pthread.h>
 extern int pthread_mutexattr_settype(pthread_mutexattr_t *, int);
+typedef void *(*pfunc_t)(void *);
 
 #define gettid() syscall(SYS_gettid)
 /*

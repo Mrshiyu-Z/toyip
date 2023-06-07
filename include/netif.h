@@ -78,6 +78,7 @@ void netdev_tx(struct netdev *dev, struct pkbuf *pkb, int len,
         unsigned short proto, unsigned char *dst);
 
 extern void net_in(struct netdev *dev, struct pkbuf *pkb);
+extern void net_timer(void);
 
 extern struct pkbuf *alloc_pkb(int size);
 extern struct pkbuf *alloc_netdev_pkb(struct netdev *nd);
