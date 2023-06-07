@@ -1,7 +1,6 @@
 #include "netif.h"
 #include "ether.h"
 #include "arp.h"
-#include "ip.h"
 #include "lib.h"
 
 /*

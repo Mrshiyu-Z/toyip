@@ -4,6 +4,7 @@
 #include "ether.h"
 #include "ip.h"
 #include "list.h"
+#include "netif.h"
 
 /*
     ARP帧头部
@@ -21,21 +22,6 @@ struct arp
     unsigned int arp_dst_ip;                 /* 目的IP地址 */
 }__attribute__((packed));
 
-static inline void arp_hton(struct arp *arphdr)
-{
-    arphdr->arp_hrd = _htons(arphdr->arp_hrd);
-    arphdr->arp_pro = _htons(arphdr->arp_pro);
-    arphdr->arp_op = _htons(arphdr->arp_op);
-}
-#define arp_ntoh(arphdr) arp_hton(arphdr)
-
-static inline void arp_hton(struct arp *ahdr)
-{
-    ahdr->arp_hrd = _htons(ahdr->arp_hrd);
-    ahdr->arp_pro = _htons(ahdr->arp_pro);
-    ahdr->arp_op = _htons(ahdr->arp_op);
-}
-
 #define ARP_HDR_SZ sizeof(struct arp)   /* ARP帧头部大小 */
 
 #define ARP_HDR_ETHER    1             /* 以太网帧类型,对应arp_hrd */
@@ -45,14 +31,6 @@ static inline void arp_hton(struct arp *ahdr)
 #define ARP_OP_REPLY     2             /* ARP应答操作类型,对应arp_op */
 
 #define BRD_HWADDR ((unsigned char *)"\xff\xff\xff\xff\xff\xff")  /* 广播MAC地址 */
-
-extern void arp_timer(int delay);
-
-extern void arp_in(struct netdev *dev, struct pkbuf *pkb);
-extern void arp_queue_send(struct arpentry *ae);
-extern void arp_queue_drop(struct arpentry *ae);
-extern void arp_request(struct arpentry *ae);
-extern void arp_reply(struct netdev *dev, struct pkbuf *pkb);
 
 /*
     ARP缓存条目
@@ -80,9 +58,23 @@ struct arpentry
 #define ARP_WAITING	    2               /* 已发送请求,等待回应 */
 #define ARP_RESOLVED	3               /* 已缓存,在有效期内 */
 
+static inline void arp_hton(struct arp *arphdr)
+{
+    arphdr->arp_hrd = _htons(arphdr->arp_hrd);
+    arphdr->arp_pro = _htons(arphdr->arp_pro);
+    arphdr->arp_op = _htons(arphdr->arp_op);
+}
+#define arp_ntoh(arphdr) arp_hton(arphdr)
+
+extern void arp_timer(int delay);
 extern void arp_cache_init(void);
+
 extern struct arpentry *arp_alloc(void);
 extern struct arpentry *arp_lookup(unsigned short pro, unsigned int ipaddr);
 extern int arp_insert(struct netdev *dev, unsigned short pro,unsigned int ipaddr, unsigned char *hwaddr);
 
+extern void arp_queue_send(struct arpentry *ae);
+extern void arp_queue_drop(struct arpentry *ae);
+extern void arp_request(struct arpentry *ae);
+extern void arp_in(struct netdev *dev, struct pkbuf *pkb);
 #endif

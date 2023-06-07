@@ -13,7 +13,7 @@ NET_STACK_OBJS = shell/shell_obj.o \
 all: tcpip
 
 tcpip: $(NET_STACK_OBJS)
-	$(CC) $^ -o $@
+	$(CC) $(LFLAGS) $^ -o $@
 
 shell/shell_obj.o: shell/*.c
 	@make -C shell/

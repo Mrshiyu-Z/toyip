@@ -2,7 +2,6 @@
 #include "arp.h"
 #include "lib.h"
 #include "list.h"
-#include "netif.h"
 #include "compile.h"
 
 static struct arpentry arp_cache[ARP_CACHE_SZ];    /* ARP缓存 */
@@ -114,13 +113,13 @@ void arp_timer(int delay)
                 ae->ae_state = ARP_FREE;
             } else {
                 ae->ae_ttl = ARP_TIMEOUT;
-                arp_cahce_unlock();
+                arp_cache_unlock();
                 arp_request(ae);
                 arp_cache_lock();
             }
         }
     }
-    arp_cahce_unlock();
+    arp_cache_unlock();
 }
 
 struct arpentry *arp_alloc(void)
