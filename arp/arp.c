@@ -137,6 +137,7 @@ void arp_in(struct netdev *dev, struct pkbuf *pkb)
     }
     arp_hton(arphdr);
     arp_recv(dev, pkb);
+    return;
 
 err_free_pkb:
     free_pkb(pkb);
