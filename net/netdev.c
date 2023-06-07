@@ -1,6 +1,8 @@
 #include "netif.h"
+#include "ether.h"
 #include "lib.h"
 #include "list.h"
+#include "netcfg.h"
 
 /* 本地网络设备链表 */
 struct list_head netdev_list;
@@ -32,6 +34,9 @@ struct netdev *netdev_alloc(char *devstr, struct netdev_ops *netops)
     return dev;
 }
 
+/*
+    虚拟网络设备的中断处理函数
+*/
 void netdev_interrupt(void)
 {
     veth_epoll();
@@ -44,4 +49,29 @@ void netdev_init(void)
 {
     list_init(&netdev_list);
     veth_init();
+}
+
+/*
+    发送网络数据包
+    @dev:   网络设备
+    @pkb:   待发送的网络数据包
+    @len:   待发送的网络数据包的长度
+    @proto: 待发送的网络数据包的协议类型(指在以太网层的协议类型)
+    @dst:   待发送的网络数据包的目的MAC地址
+*/  
+void netdev_tx(struct netdev *dev, struct pkbuf *pkb, int len,
+        unsigned short proto, unsigned char *dst)
+{
+    struct ether *ehdr = (struct ether *)pkb->pk_data;
+    ehdr->eth_pro = _htons(proto);
+    hwcpy(ehdr->eth_dst, dst);
+    hwcpy(ehdr->eth_src, dev->net_hwaddr);
+
+    dbg(MACFMT " -> " MACFMT "(%s)",
+            macfmt(ehdr->eth_src),
+            macfmt(ehdr->eth_dst),
+            ethpro(proto));
+    pkb->pk_len = len + ETH_HRD_SZ;
+    dev->net_ops->xmit(dev,pkb);
+    free_pkb(pkb);
 }

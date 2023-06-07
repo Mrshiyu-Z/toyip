@@ -1,5 +1,8 @@
 #include "lib.h"
 
+/*
+    打印错误信息
+*/
 void perrx(char *str)
 {
     if (errno){

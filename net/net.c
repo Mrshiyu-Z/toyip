@@ -22,8 +22,10 @@ static struct ether *eth_init(struct netdev *dev, struct pkbuf *pkb)
         dbg("received packet is too small:%d bytes", pkb->pk_len);
         return NULL;
     }
+    /* 判断是否为组播帧 */
     if (is_eth_multicast(ehdr->eth_dst))
     {
+        /* 判断是否为广播帧 */
         if (is_eth_broadcast(ehdr->eth_dst))
             pkb->pk_type = PKT_BROADCAST;
         else

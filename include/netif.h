@@ -74,6 +74,8 @@ static _inline unsigned short _htons(unsigned short host)
 extern void netdev_init(void);
 extern struct netdev *netdev_alloc(char *devstr, struct netdev_ops *netops);
 extern void netdev_interrupt(void);
+void netdev_tx(struct netdev *dev, struct pkbuf *pkb, int len,
+        unsigned short proto, unsigned char *dst);
 
 extern void net_in(struct netdev *dev, struct pkbuf *pkb);
 

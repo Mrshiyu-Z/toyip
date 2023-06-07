@@ -1,5 +1,5 @@
-#ifndef __NETCFG_H
-#define __NETCFG_H
+#ifndef __NETCFG_H__
+#define __NETCFG_H__
 
 #define FAKE_HW_ADDR      "\x00\x34\x45\x67\x89\xab"    /* 00:34:45:67:89:ab */
 

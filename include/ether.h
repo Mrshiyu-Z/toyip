@@ -13,6 +13,9 @@
 #define ETH_P_ARP  0x0806                   /* ARP协议类型 */
 #define ETH_P_RARP 0x8035                   /* RARP协议类型 */
 
+/*
+    以太网帧头部
+*/
 struct ether
 {
     unsigned char eth_dst[6];   /* 目的mac地址 */

@@ -17,6 +17,7 @@
 
 /* pthread */
 #include <pthread.h>
+extern int pthread_mutexattr_settype(pthread_mutexattr_t *, int);
 
 /*
     用于生成带颜色的字符串
@@ -47,5 +48,6 @@
 
 extern void *xzalloc(int size);
 extern void *xmalloc(int size);
+extern void perrx(char *str);
 
 #endif
