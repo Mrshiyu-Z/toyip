@@ -92,7 +92,7 @@ static _inline void list_del_init(struct list_head *list)
     @name: 链表的头节点
 */
 #define LIST_HEAD(name) \
-    struct list_name name={&name, &name};
+    struct list_head name={&name, &name};
 
 /*
     判断链表是否为空
@@ -179,7 +179,7 @@ static _inline void list_del_init(struct list_head *list)
     @member: 结构体成员
 */
 #define list_for_each_entry_reverse(entry, head, member) \
-    for(entry = list_last_entry(head, typedef(*entry), member); \
+    for(entry = list_last_entry(head, typeof(*entry), member); \
         &entry->member != (head); \
         entry = list_last_entry(&entry->member, typeof(*entry), member))
 

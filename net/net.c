@@ -53,7 +53,7 @@ void net_in(struct netdev *dev, struct pkbuf *pkb)
     struct ether *ehdr = eth_init(dev, pkb);
     if (!ehdr)
         return;
-    dbg(MACFMT " -> " MACFMT "(%s)",
+    l2dbg(MACFMT " -> " MACFMT "(%s)",
                 macfmt(ehdr->eth_src), 
                 macfmt(ehdr->eth_dst),
                 ethpro(pkb->pk_protocol));
@@ -70,6 +70,7 @@ void net_in(struct netdev *dev, struct pkbuf *pkb)
             // rarp_in(dev, pkb);
             break;
         default:
+            l2dbg("drop unkown-type packet");
             free_pkb(pkb);
             break;
     }

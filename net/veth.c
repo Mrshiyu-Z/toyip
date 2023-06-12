@@ -77,12 +77,12 @@ static int veth_xmit(struct netdev *dev, struct pkbuf *pkb)
     l = write(tap->fd, pkb->pk_data, pkb->pk_len);
     if (l != pkb->pk_len)
     {
-        dbg("write net dev");
+        devdbg("write net dev");
         dev->net_stats.tx_errors++;
     } else {
         dev->net_stats.tx_packets++;
         dev->net_stats.tx_bytes += l;
-        dbg("write net dev size: %d\n", l);
+        devdbg("write net dev size: %d\n", l);
     }
     return l;
 }
@@ -105,10 +105,10 @@ static int veth_recv(struct pkbuf *pkb)
     int l;
     l = read(tap->fd, pkb->pk_data, pkb->pk_len);
     if (l <= 0){
-        dbg("veth read net dev");
+        devdbg("veth read net dev");
         veth->net_stats.rx_errors++;
     } else {
-        dbg("veth read net dev size: %d\n", l);
+        devdbg("veth read net dev size: %d\n", l);
         veth->net_stats.rx_packets++;
         veth->net_stats.rx_bytes += l;
         pkb->pk_len = l;

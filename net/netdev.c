@@ -67,7 +67,7 @@ void netdev_tx(struct netdev *dev, struct pkbuf *pkb, int len,
     hwcpy(ehdr->eth_dst, dst);
     hwcpy(ehdr->eth_src, dev->net_hwaddr);
 
-    dbg(MACFMT " -> " MACFMT "(%s)",
+    l2dbg(MACFMT " -> " MACFMT "(%s)",
             macfmt(ehdr->eth_src),
             macfmt(ehdr->eth_dst),
             ethpro(proto));

@@ -30,7 +30,7 @@ void arp_request(struct arpentry *ae)
     hwcpy(arphdr->arp_src_hw, ae->ae_dev->net_hwaddr);
     arphdr->arp_dst_ip = ae->ae_ipaddr;
     hwcpy(arphdr->arp_dst_hw, BRD_HWADDR);
-    dbg(IPFMT"("MACFMT") -> "IPFMT"(request)",
+    arpdbg(IPFMT"("MACFMT") -> "IPFMT"(request)",
         ipfmt(arphdr->arp_src_ip), 
         macfmt(arphdr->arp_src_hw),
         ipfmt(arphdr->arp_dst_ip));
@@ -46,7 +46,7 @@ void arp_reply(struct netdev *dev, struct pkbuf *pkb)
 {
     struct ether *ethhdr = (struct ether *)pkb->pk_data;
     struct arp *arphdr = (struct arp *)ethhdr->eth_data;
-    dbg("replying arp request");
+    arpdbg("replying arp request");
     arphdr->arp_op = ARP_OP_REPLY;
     hwcpy(arphdr->arp_dst_hw, arphdr->arp_src_hw);
     arphdr->arp_dst_ip = arphdr->arp_src_ip;
@@ -66,19 +66,19 @@ void arp_recv(struct netdev *dev, struct pkbuf *pkb)
     struct ether *ehdr = (struct ether *)pkb->pk_data;
     struct arp *arphdr = (struct arp *)ehdr->eth_data;
     struct arpentry *ae;
-    dbg(IPFMT " -> " IPFMT, ipfmt(arphdr->arp_src_ip), ipfmt(arphdr->arp_dst_ip));
+    arpdbg(IPFMT " -> " IPFMT, ipfmt(arphdr->arp_src_ip), ipfmt(arphdr->arp_dst_ip));
 
     /* 如果目的IP地址是多播地址,丢弃 */
     if (MULTICAST(arphdr->arp_dst_ip))
     {
-        dbg("arp packet is multicast.");
+        arpdbg("arp packet is multicast.");
         goto free_pkb;
     }
 
     /* 如果目的IP不是我们的网口IP,丢弃 */
     if ( arphdr->arp_dst_ip != dev->net_ipaddr )
     {
-        dbg("arp packet is not for us.");
+        arpdbg("arp packet is not for us.");
         goto free_pkb;
     }
     ae = arp_lookup(arphdr->arp_pro, arphdr->arp_src_ip);
@@ -119,20 +119,20 @@ void arp_in(struct netdev *dev, struct pkbuf *pkb)
     /* 如果不是本机的ARP报文,则丢弃 */
     if (pkb->pk_type == PKT_OTHERHOST )
     {
-        dbg("arp(l2) packet is not for us.");
+        arpdbg("arp(l2) packet is not for us.");
         goto err_free_pkb;
     }
 
     /* 如果报文长度不够 */
     if ( pkb->pk_len < ETH_HRD_SZ + ARP_HDR_SZ)
     {
-        dbg("arp packet is too small.");
+        arpdbg("arp packet is too small.");
         goto err_free_pkb;
     }
     /* 判断以太网源地址和arp源地址是否相同 */
     if (hwacmp(arphdr->arp_src_hw, ehdr->eth_src) != 0)
     {
-        dbg("sender hardware address error.");
+        arpdbg("sender hardware address error.");
         goto err_free_pkb;
     }
     arp_hton(arphdr);

@@ -18,6 +18,20 @@ do { \
 } while(0)
 
 /*
+    重新调整pkb的内存大小
+    @pkb:   网络包
+    @len:   新的内存大小
+*/
+void pkb_trim(struct pkbuf *pkb, int len)
+{
+    pkb->pk_len = len;
+    if (realloc(pkb, sizeof(*pkb) + len) == NULL)
+    {
+        perrx("realloc error");
+    }
+}
+
+/*
     为网络包分配内存
     @size:  分配的内存大小
 */

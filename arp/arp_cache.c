@@ -52,7 +52,7 @@ void arp_queue_send(struct arpentry *ae)
     {
         pkb = list_first_entry(&ae->ae_list, struct pkbuf, pk_list);
         list_del(ae->ae_list.next);
-        dbg("send pending packet");
+        arpdbg("send pending packet");
         netdev_tx(ae->ae_dev, pkb, pkb->pk_len - ETH_HRD_SZ, 
                 pkb->pk_protocol, ae->ae_hwaddr);
     }
@@ -69,6 +69,7 @@ void arp_queue_drop(struct arpentry *ae)
     {
         pkb = list_first_entry(&ae->ae_list, struct pkbuf, pk_list);
         list_del(ae->ae_list.next);
+        arpdbg("drop pending packet");
         free_pkb(pkb);
     }
 }
@@ -138,7 +139,7 @@ struct arpentry *arp_alloc(void)
     /* 如果没找到,表示arp缓存已经满了 */
     if (i >= ARP_CACHE_SZ)
     {
-        dbg("arp cache is full");
+        arpdbg("arp cache is full");
         arp_cache_unlock();
         return NULL;
     }
@@ -179,7 +180,7 @@ struct arpentry *arp_lookup(unsigned short pro, unsigned int ipaddr)
 {
     struct arpentry *ae, *ret = NULL;
     arp_cache_lock();
-    dbg("pro:%d "IPFMT, pro, ipfmt(ipaddr));
+    arpdbg("pro:%d "IPFMT, pro, ipfmt(ipaddr));
     for (ae = arp_cache_head;ae < arp_cache_tail; ae++)
     {
         if (ae->ae_state == ARP_FREE)

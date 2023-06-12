@@ -82,6 +82,7 @@ extern void net_timer(void);
 
 extern struct pkbuf *alloc_pkb(int size);
 extern struct pkbuf *alloc_netdev_pkb(struct netdev *nd);
+extern void pkb_trim(struct pkbuf *pkb, int len);
 extern void free_pkb(struct pkbuf *pkb);
 
 extern void netdev_init(void);
