@@ -61,7 +61,7 @@ void net_in(struct netdev *dev, struct pkbuf *pkb)
     switch (pkb->pk_protocol)
     {
         case ETH_P_IP:
-            // ip_in(dev, pkb);
+            ip_in(dev, pkb);
             break;
         case ETH_P_ARP:
             arp_in(dev, pkb);

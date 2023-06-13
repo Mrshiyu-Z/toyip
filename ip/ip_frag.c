@@ -55,6 +55,7 @@ struct ip_frag *new_frag(struct ip *iphdr)
     */
     list_add(&frag->frag_list, &frag_head);     // 将分片添加到分片头链表中
     list_init(&frag->frag_pkb);                 // 初始化分片的pkb链表
+    return frag;
 }
 
 /*
@@ -214,6 +215,10 @@ struct ip_frag *lookup_frag(struct ip *ip_hdr)
     return NULL;
 }
 
+/*
+    IP重组报文入口
+    @pkb: 收到的报文
+*/
 struct pkbuf *ip_reass(struct pkbuf *pkb)
 {
     struct ip *ip_hdr = pkb2ip(pkb);
@@ -226,5 +231,19 @@ struct pkbuf *ip_reass(struct pkbuf *pkb)
 		(ip_hdr->ip_fragoff & IP_FRAG_MF) ? 1 : 0,
 		ipoff(ip_hdr),
 		ip_hdr->ip_len);
-    
+    /* 在分片链表中查找,查看是否已经有此IP报文的分片进来 */
+    frag = lookup_frag(ip_hdr);
+    /* 如果没有找到,就新建分片链表 */
+    if (frag == NULL)
+        frag = new_frag(ip_hdr);
+    /* 将收到的这一片报文插入到分片链表中的pkb链表 */
+    if (insert_frag(pkb, frag) < 0)
+        return NULL;
+    /* 如果报文已经完整,则重组报文 */
+    if (complete_frag(frag))
+        pkb = reass_frag(frag);
+    else
+        pkb = NULL;
+    return pkb;
 }
+

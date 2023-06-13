@@ -8,7 +8,8 @@ export LD CC CFLAGS
 NET_STACK_OBJS = shell/shell_obj.o \
 				 net/net_obj.o \
 				 lib/lib_obj.o \
-				 arp/arp_obj.o
+				 arp/arp_obj.o \
+				 ip/ip_obj.o
 
 all: tcpip
 
@@ -26,6 +27,9 @@ lib/lib_obj.o: lib/*.c
 
 arp/arp_obj.o: arp/*.c
 	@make -C arp/
+
+ip/ip_obj.o: ip/*.c
+	@make -C ip/
 
 clean:
 	find ./ -name *.o | xargs rm -rf

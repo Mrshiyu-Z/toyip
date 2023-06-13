@@ -1,4 +1,4 @@
-OBJS   = lib.o
+OBJS   = lib.o checksum.o
 SUBDIR = lib
 
 all:lib_obj.o
