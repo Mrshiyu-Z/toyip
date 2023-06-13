@@ -38,7 +38,7 @@ void ip_recv_route(struct pkbuf *pkb)
 */
 void ip_in(struct netdev *dev, struct pkbuf *pkb)
 {
-    struct ether *ethhdr = (struct ethhdr *)pkb->pk_data;
+    struct ether *ethhdr = (struct ether *)pkb->pk_data;
     struct ip *iphdr = (struct ip *)ethhdr->eth_data;
     int hlen;
     /* 检查报文的标志 */
