@@ -1,4 +1,6 @@
 .vscode/
+.cache/
 *.o
 *.pcap
 tap
+compile_commands.json

@@ -112,6 +112,9 @@ struct ip_frag
 				((0xff000000 & (netip)) == 0x00000000))
 
 extern struct pkbuf *ip_reass(struct pkbuf *pkb);
+extern void ip_send_dev(struct netdev *dev, struct pkbuf *pkb);
+extern void ip_send_out(struct pkbuf *pkb);
+extern void ip_send_frag(struct netdev *dev, struct pkbuf *pkb);
 extern void ip_in(struct netdev *dev, struct pkbuf *pkb);
 
 #endif

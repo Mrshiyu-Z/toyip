@@ -247,3 +247,89 @@ struct pkbuf *ip_reass(struct pkbuf *pkb)
     return pkb;
 }
 
+/*
+    通过一些参数从一个完整的IP报文中获取指定的IP分片
+    @pkb:    待分片的报文
+    @orig:   原始IP首部
+    @hlen:   原始IP首部长度
+    @dlen:   原始IP数据部分长度
+    @off:    分片偏移
+    @mf_bit: 分片标志位
+*/
+struct pkbuf *ip_frag(struct pkbuf *pkb, struct ip *orig, int hlen,
+                int dlen, int off, unsigned short mf_bit)
+{
+    struct pkbuf *frag_pkb;
+    struct ip *frag_hdr;
+
+    frag_pkb = alloc_pkb(ETH_HRD_SZ + hlen + dlen);
+
+    frag_pkb->pk_protocol = pkb->pk_protocol;
+    frag_pkb->pk_type = pkb->pk_type;
+    frag_pkb->pk_indev = pkb->pk_indev;
+    frag_pkb->pk_rtdst = pkb->pk_rtdst;
+    frag_hdr = pkb2ip(frag_pkb);
+    /* 复制IP头 */
+    memcpy(frag_hdr, orig, hlen);
+    /* 复制数据部分 */
+    memcpy((void *)frag_hdr + hlen, (void *)orig + hlen + off, dlen);
+    frag_hdr->ip_len = _htons(hlen + dlen);
+    mf_bit |= (off >> 3);
+    frag_hdr->ip_fragoff = _htons(mf_bit);
+    ip_set_checksum(frag_hdr);
+    return frag_pkb;
+}
+
+/*
+    将网络层报文分片发送出去
+    @dev: 网络接口
+    @pkb: 报文
+*/
+void ip_send_frag(struct netdev *dev, struct pkbuf *pkb)
+{
+    struct pkbuf *frag_pkb;
+    struct ip *ip_hdr;
+    int dlen, hlen, mlen, off;
+
+    ip_hdr = pkb2ip(pkb);
+    hlen = iphlen(ip_hdr);
+    dlen = _ntohs(ip_hdr->ip_len) - hlen;
+    // IP分片偏移需要进行8字节对齐,这里& ~7意思就是最后三位置0,保证mlen是8的整数倍
+    mlen = (dev->net_mtu - hlen) & ~7;
+    off = 0;
+    while (dlen > mlen) {
+        ipdbg(" [f] ip frag: off %d hlen %d dlen %d",off, hlen, mlen);
+        frag_pkb = ip_frag(pkb, ip_hdr, hlen, dlen, off, IP_FRAG_MF);
+        ip_send_dev(dev, frag_pkb);
+
+        dlen -= mlen;
+        off += mlen;
+    }
+    if (dlen) {
+        ipdbg(" [f] ip frag: off %d hlen %d dlen %d", off, hlen, dlen);
+        /*
+            ip_hdr是一个完整的大的报文,所以ip_fragoff为0
+            所以ip_hdr->ip_fragoff & IP_FRAG_MF也为0
+            表示这是最后一片
+        */
+        frag_pkb = ip_frag(pkb, ip_hdr, hlen, dlen, off,
+                     ip_hdr->ip_fragoff & IP_FRAG_MF);
+        ip_send_dev(dev, pkb);
+    }
+    free_pkb(pkb);
+}
+
+// void ip_timer(int delay)
+// {
+//     struct ip_frag *frag, *__safe_frag;
+//     list_for_each_entry_safe(frag, __safe_frag, &frag_head, frag_list) {
+//         if (full_frag(frag))
+//             continue;
+//         frag->frag_ttl -= delay;
+//         if (frag->frag_ttl < 0) {
+//             struct pkbuf *pkb = frag_head_pkb(frag);
+//             ip_hton(pkb2ip(pkb));
+
+//         }
+//     }
+// }

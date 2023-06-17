@@ -44,6 +44,7 @@ struct pkbuf *alloc_pkb(int size)
     pkb->pk_type = 0;
     pkb->pk_refcnt = 1;
     pkb->pk_indev = NULL;
+    pkb->pk_rtdst = NULL;
     list_init(&pkb->pk_list);
     alloc_pkbs++;
     pkb_safe();
@@ -70,4 +71,13 @@ void free_pkb(struct pkbuf *pkb)
         free_pkbs++;
         free(pkb);
     }
+}
+
+/*
+    表示pkb数据包被使用了一次
+    @pkb: 数据包
+*/
+void get_pkb(struct pkbuf *pkb)
+{
+    pkb->pk_refcnt++;
 }

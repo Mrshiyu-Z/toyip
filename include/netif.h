@@ -35,6 +35,7 @@ struct netdev {                                 // 网络设备结构
     struct netstats net_stats;                  // 网络设备的统计信息
     struct list_head net_list;                  // 用于将网络设备添加到链表中
 };
+#define LOCALNET(dev) ((dev)->net_ipaddr & (dev)->net_mask)
 
 struct tapdev {             // tap设备结构
     struct netdev dev;      // 网络设备结构
@@ -48,6 +49,7 @@ struct pkbuf {                          // 网络包结构
     int pk_len;                         // 网络包的长度
     int pk_refcnt;                      // 网络包的引用计数
     struct netdev *pk_indev;            // 网络包的入口设备
+    struct rtentry *pk_rtdst;           // 网络包的路由
     // struct sock *pk_sk;
     unsigned char pk_data[0];           // 网络包的数据
 }__attribute__((packed));
@@ -71,8 +73,13 @@ static _inline unsigned short _htons(unsigned short host)
 
 #define _ntohs(net) _htons(net)
 
+extern struct tapdev *tap;
+extern struct netdev *veth;
+extern struct netdev *loop;
+
 extern void netdev_init(void);
 extern struct netdev *netdev_alloc(char *devstr, struct netdev_ops *netops);
+extern void netdev_free(struct netdev *dev);
 extern void netdev_interrupt(void);
 void netdev_tx(struct netdev *dev, struct pkbuf *pkb, int len,
         unsigned short proto, unsigned char *dst);
@@ -84,6 +91,7 @@ extern struct pkbuf *alloc_pkb(int size);
 extern struct pkbuf *alloc_netdev_pkb(struct netdev *nd);
 extern void pkb_trim(struct pkbuf *pkb, int len);
 extern void free_pkb(struct pkbuf *pkb);
+extern void get_pkb(struct pkbuf *pkb);
 
 extern void netdev_init(void);
 #endif

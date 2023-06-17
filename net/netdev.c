@@ -11,6 +11,9 @@ extern void veth_init(void);
 extern void veth_exit(void);
 extern void veth_epoll(void);
 
+extern void loop_init(void);
+extern void loop_exit(void);
+
 /*
     分配并初始化网络设备
     @devstr:    网络设备的名称
@@ -32,6 +35,18 @@ struct netdev *netdev_alloc(char *devstr, struct netdev_ops *netops)
     if (netops && netops->init)
         netops->init(dev);
     return dev;
+}
+
+/*
+    释放dev设备
+    @dev: 要释放dev设备
+*/
+void netdev_free(struct netdev *dev)
+{
+    if (dev->net_ops && dev->net_ops->exit)
+        dev->net_ops->exit(dev);
+    list_del(&dev->net_list);
+    free(dev);
 }
 
 /*

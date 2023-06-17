@@ -27,3 +27,14 @@ unsigned short ip_chksum(unsigned short *data, int size)
 {
     return checksum(data, size, 0);
 }
+
+void ip_set_checksum(struct ip *ip_hdr)
+{
+	ip_hdr->ip_sum = 0;
+	ip_hdr->ip_sum = ip_chksum((unsigned short *)ip_hdr, iphlen(ip_hdr));
+}
+
+unsigned short icmp_chksum(unsigned short *data, int size)
+{
+	return checksum(data, size, 0);
+}

@@ -3,6 +3,7 @@
 #include "arp.h"
 #include "ip.h"
 #include "icmp.h"
+#include "route.h"
 #include "lib.h"
 
 void ip_recv_local(struct pkbuf *pkb)
@@ -20,6 +21,22 @@ void ip_recv_local(struct pkbuf *pkb)
             return;
         ip_hdr = pkb2ip(pkb);
     }
+    switch (ip_hdr->ip_pro)
+    {
+        case IP_P_ICMP:
+            // icmp_in(pkb);
+            break;
+        case IP_P_TCP:
+            // tcp_in(pkb);
+            break;
+        case IP_P_UDP:
+            // udp_in(pkb);
+            break;
+        default:
+            ipdbg("unknown ip protocol");
+            free_pkb(pkb);
+            break;
+    }
 }
 
 /*
@@ -28,7 +45,13 @@ void ip_recv_local(struct pkbuf *pkb)
 */
 void ip_recv_route(struct pkbuf *pkb)
 {
-    ip_recv_local(pkb);
+    if (rt_input(pkb) < 0)
+        return;
+    if (pkb->pk_rtdst->rt_flags & RT_LOCALHOST ){
+        ip_recv_local(pkb);
+    } else {
+        ip_hton(pkb2ip(pkb));
+    }
 }
 
 /*

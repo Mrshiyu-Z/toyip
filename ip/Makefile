@@ -1,4 +1,4 @@
-OBJS   = ip_in.o ip_frag.o 
+OBJS   = ip_in.o ip_out.o ip_frag.o route.o
 SUBDIR = ip
 
 all:ip_obj.o
