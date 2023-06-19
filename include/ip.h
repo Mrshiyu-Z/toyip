@@ -116,5 +116,8 @@ extern void ip_send_dev(struct netdev *dev, struct pkbuf *pkb);
 extern void ip_send_out(struct pkbuf *pkb);
 extern void ip_send_frag(struct netdev *dev, struct pkbuf *pkb);
 extern void ip_in(struct netdev *dev, struct pkbuf *pkb);
+extern void ip_send_info(struct pkbuf *pkb, unsigned char tos, unsigned short len,
+            unsigned char ttl, unsigned char ip_pro, unsigned int dst);
+extern void ip_timer(int delay);
 
 #endif

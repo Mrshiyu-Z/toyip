@@ -24,7 +24,7 @@ void ip_recv_local(struct pkbuf *pkb)
     switch (ip_hdr->ip_pro)
     {
         case IP_P_ICMP:
-            // icmp_in(pkb);
+            icmp_in(pkb);
             break;
         case IP_P_TCP:
             // tcp_in(pkb);

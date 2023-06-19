@@ -1,6 +1,7 @@
 #ifndef __ICMP_H__
 #define __ICMP_H__
 
+#include "netif.h"
 struct icmp 
 {
     unsigned char icmp_type;
@@ -34,7 +35,7 @@ struct icmp
 #define ICMP_T_REDIRECT       5   // 重定向
 #define ICMP_T_DUMMY_6        6   // 保留
 #define ICMP_T_DUMMY_7        7   // 保留
-#define ICMP_T_ECHO           8   // 回显请求
+#define ICMP_T_ECHO           8   // 请求
 #define ICMP_T_ROUTERADVERT   9   // 路由器通告
 #define ICMP_T_ROUTERSOLICIT  10  // 路由器请求
 #define ICMP_T_TIMXCEED       11  // 超时
@@ -52,6 +53,9 @@ struct icmp
 #define ICMP_REDIRECT_TOSNET  2   // 服务类型和网络重定向
 #define ICMP_REDIRECT_TOSHOST 3   // 服务类型和主机重定向
 
+#define ICMP_EXC_TTL		0
+#define ICMP_EXC_FRAGTIME	1
+
 struct icmp_desc {
     int error;
     char *info;
@@ -64,5 +68,13 @@ struct icmp_desc {
     .info = NULL, \
     .handler = icmp_drop_reply, \
 }
+
+#define icmp_type_error(type) icmp_table[type].error
+#define icmp_error(icmp_hdr) icmp_type_error((icmp_hdr)->icmp_type)
+
+struct pkbuf;
+extern void icmp_send(unsigned char type, unsigned char code,
+        unsigned int data, struct pkbuf *pkb_in);
+extern void icmp_in(struct pkbuf *pkb);
 
 #endif

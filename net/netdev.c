@@ -63,6 +63,7 @@ void netdev_interrupt(void)
 void netdev_init(void)
 {
     list_init(&netdev_list);
+    loop_init();
     veth_init();
 }
 

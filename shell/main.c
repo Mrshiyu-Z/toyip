@@ -4,6 +4,7 @@
 #include "ip.h"
 #include "arp.h"
 #include "netif.h"
+#include "route.h"
 
 pthread_t thread[4];
 
@@ -22,6 +23,7 @@ void net_stack_init(void)
 {
     netdev_init();
     arp_cache_init();
+    rt_init();
 }
 
 void net_stack_run(void)

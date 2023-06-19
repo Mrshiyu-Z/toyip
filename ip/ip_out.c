@@ -6,6 +6,7 @@
 #include "icmp.h"
 #include "lib.h"
 #include "route.h"
+#include <sys/types.h>
 
 /*
     网络层发送给物理层
@@ -70,4 +71,22 @@ void ip_send_out(struct pkbuf *pkb)
     else
         ip_send_dev(pkb->pk_rtdst->rt_dev, pkb);
     
+}
+
+static unsigned short ipid = 0;
+void ip_send_info(struct pkbuf *pkb, unsigned char tos, unsigned short len,
+            unsigned char ttl, unsigned char ip_pro, unsigned int dst)
+{
+    struct ip *ip_hdr = pkb2ip(pkb);
+    ip_hdr->ip_ver = IP_VERSION_4;
+    ip_hdr->ip_hlen = IP_HDR_SZ / 4;
+    ip_hdr->ip_tos = tos;
+    ip_hdr->ip_len = _htons(len);
+    ip_hdr->ip_id = _htons(ipid++);
+    ip_hdr->ip_fragoff = 0;
+    ip_hdr->ip_ttl = ttl;
+    ip_hdr->ip_pro = ip_pro;
+    ip_hdr->ip_dst = dst;
+
+    ip_send_out(pkb);
 }

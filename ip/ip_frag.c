@@ -319,17 +319,18 @@ void ip_send_frag(struct netdev *dev, struct pkbuf *pkb)
     free_pkb(pkb);
 }
 
-// void ip_timer(int delay)
-// {
-//     struct ip_frag *frag, *__safe_frag;
-//     list_for_each_entry_safe(frag, __safe_frag, &frag_head, frag_list) {
-//         if (full_frag(frag))
-//             continue;
-//         frag->frag_ttl -= delay;
-//         if (frag->frag_ttl < 0) {
-//             struct pkbuf *pkb = frag_head_pkb(frag);
-//             ip_hton(pkb2ip(pkb));
-
-//         }
-//     }
-// }
+void ip_timer(int delay)
+{
+    struct ip_frag *frag, *__safe_frag;
+    list_for_each_entry_safe(frag, __safe_frag, &frag_head, frag_list) {
+        if (full_frag(frag))
+            continue;
+        frag->frag_ttl -= delay;
+        if (frag->frag_ttl < 0) {
+            struct pkbuf *pkb = frag_head_pkb(frag);
+            ip_hton(pkb2ip(pkb));
+            icmp_send(ICMP_T_TIMXCEED, ICMP_EXC_FRAGTIME, 0, pkb);
+            delete_frag(frag);
+        }
+    }
+}

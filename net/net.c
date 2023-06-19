@@ -84,5 +84,6 @@ void net_timer(void)
     while(1) {
         sleep(1);
         arp_timer(1);
+        ip_timer(1);
     }
 }
