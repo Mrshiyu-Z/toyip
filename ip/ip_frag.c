@@ -54,7 +54,7 @@ struct ip_frag *new_frag(struct ip *iphdr)
         另一个链表是pkb链表,用于管理分片的pkb,这个链表的头节点是frag_pkb,后面的成员是各个分片的pkb
     */
     list_add(&frag->frag_list, &frag_head);     // 将分片添加到分片头链表中
-    list_init(&frag->frag_pkb);                 // 初始化分片的pkb链表
+    list_init(&frag->frag_pkb);                       // 初始化分片的pkb链表
     return frag;
 }
 
@@ -108,6 +108,7 @@ struct pkbuf *reass_frag(struct ip_frag *frag)
     pkb2ip(pkb)->ip_fragoff = 0;
     pkb2ip(pkb)->ip_len = len;
 
+    /* 将指针移动到IP报文data字段的位置 */
     p += ETH_HRD_SZ + hlen;
     list_for_each_entry(frag_pkb, &frag->frag_pkb, pk_list) {
         frag_hdr = pkb2ip(frag_pkb);
@@ -234,7 +235,7 @@ struct pkbuf *ip_reass(struct pkbuf *pkb)
 		ip_hdr->ip_len);
     /* 在分片链表中查找,查看是否已经有此IP报文的分片进来 */
     frag = lookup_frag(ip_hdr);
-    /* 如果没有找到,就新建分片链表 */
+    /* 如果没有找到,就新建分片链表的头节点 */
     if (frag == NULL)
         frag = new_frag(ip_hdr);
     /* 将收到的这一片报文插入到分片链表中的pkb链表 */
