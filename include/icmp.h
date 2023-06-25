@@ -48,6 +48,25 @@ struct icmp
 #define ICMP_T_AMREQREPLY     18  // 地址掩码应答
 #define ICMP_T_MAXNUM         18  // 最大值
 
+/* ICMP code for ICMP_T_UNREACH type */
+#define ICMP_NET_UNREACH      0   // 网络不可达
+#define ICMP_HOST_UNREACH     1   // 主机不可达
+#define ICMP_PROTO_UNREACH    2   // 协议不可达
+#define ICMP_PORT_UNREACH     3   // 端口不可达
+#define ICMP_FRAG_NEEDED      4   // 需要分片但设置了不分片位
+#define ICMP_SROYTE_FAILED    5   // 源站选路失败
+#define ICMP_NET_UNKNOWN      6   // 目标网络未知
+#define ICMP_HOST_UNKNOWN     7   // 目标主机未知
+#define ICMP_SHOST_ISOLATED   8   // 源主机被隔离
+#define ICMP_HOST_ADMINPRO	  10  // 由于过滤，目标主机不可达
+#define ICMP_NET_UNREACHTOS	  11  // 对于TOS，网络不可达
+#define ICMP_HOST_UNREACHTOS  12  // 对于TOS，主机不可达
+#define ICMP_ADMINPRO		  13  // 由于过滤，网络不可达
+#define ICMP_PREC_VIOLATION	  14  // 前导码违规：数据包违反了入站或出站策略
+#define ICMP_PREC_CUTOFF	  15  // 前导码截断：优先级为高或低的数据包被丢弃
+
+
+/* ICMP code for ICMP_T_REDIRECT type */
 #define ICMP_REDIRECT_NET     0   // 网络重定向
 #define ICMP_REDIRECT_HOST    1   // 主机重定向
 #define ICMP_REDIRECT_TOSNET  2   // 服务类型和网络重定向

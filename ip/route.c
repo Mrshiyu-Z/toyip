@@ -100,7 +100,7 @@ void rt_init(void)
 }
 
 /*
-    
+    查找入方向的数据包的目的IP,本机是否有路由能够到达
 */
 int rt_input(struct pkbuf *pkb)
 {

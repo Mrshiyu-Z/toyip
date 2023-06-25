@@ -150,11 +150,12 @@ int insert_frag(struct pkbuf *pkb, struct ip_frag *frag)
             goto frag_drop;
         }
         frag->frag_flags |= FRAG_LAST_IN;
-        frag->frag_rsize = off + ip_hdr->ip_len - hlen;
+        frag->frag_size = off + ip_hdr->ip_len - hlen;
         pos = frag->frag_pkb.prev;
         goto frag_out;
     }
 
+    /* 如果是中间的分片 */
     pos = &frag->frag_pkb;
     list_for_each_entry_reverse(frag_pkb, &frag->frag_pkb, pk_list) {
         frag_hdr = pkb2ip(frag_pkb);
@@ -299,7 +300,7 @@ void ip_send_frag(struct netdev *dev, struct pkbuf *pkb)
     off = 0;
     while (dlen > mlen) {
         ipdbg(" [f] ip frag: off %d hlen %d dlen %d",off, hlen, mlen);
-        frag_pkb = ip_frag(pkb, ip_hdr, hlen, dlen, off, IP_FRAG_MF);
+        frag_pkb = ip_frag(pkb, ip_hdr, hlen, mlen, off, IP_FRAG_MF);
         ip_send_dev(dev, frag_pkb);
 
         dlen -= mlen;
@@ -314,7 +315,7 @@ void ip_send_frag(struct netdev *dev, struct pkbuf *pkb)
         */
         frag_pkb = ip_frag(pkb, ip_hdr, hlen, dlen, off,
                      ip_hdr->ip_fragoff & IP_FRAG_MF);
-        ip_send_dev(dev, pkb);
+        ip_send_dev(dev, frag_pkb);
     }
     free_pkb(pkb);
 }

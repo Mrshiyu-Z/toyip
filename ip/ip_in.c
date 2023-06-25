@@ -45,6 +45,10 @@ void ip_recv_local(struct pkbuf *pkb)
 */
 void ip_recv_route(struct pkbuf *pkb)
 {
+    /*
+        寻找是否有到目的IP地址的路由
+        有则将路由赋给pkb->pk_rtdst
+    */
     if (rt_input(pkb) < 0)
         return;
     if (pkb->pk_rtdst->rt_flags & RT_LOCALHOST ){

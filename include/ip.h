@@ -111,6 +111,17 @@ struct ip_frag
 #define BROADCAST(netip) (((0xff000000 & (netip)) == 0xff000000) ||\
 				((0xff000000 & (netip)) == 0x00000000))
 
+/*
+	查看两个IP是否是同一个子网(equivalent subnet)
+	@mask: 子网掩码
+	@ip1: 第一个IP
+	@ip2: 第二个IP
+*/
+static inline int equsubnet(unsigned int mask, unsigned int ip1, unsigned int ip2)
+{
+	return ((mask & ip1) == (mask & ip2));
+}
+
 extern struct pkbuf *ip_reass(struct pkbuf *pkb);
 extern void ip_send_dev(struct netdev *dev, struct pkbuf *pkb);
 extern void ip_send_out(struct pkbuf *pkb);
