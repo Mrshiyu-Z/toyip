@@ -9,7 +9,9 @@ NET_STACK_OBJS = shell/shell_obj.o \
 				 net/net_obj.o \
 				 lib/lib_obj.o \
 				 arp/arp_obj.o \
-				 ip/ip_obj.o
+				 ip/ip_obj.o \
+				 socket/socket_obj.o \
+				 udp/udp_obj.o 
 
 all: tcpip
 
@@ -30,6 +32,12 @@ arp/arp_obj.o: arp/*.c
 
 ip/ip_obj.o: ip/*.c
 	@make -j4 -C ip/
+
+socket/socket_obj.o: socket/*.c
+	@make -j4 -C socket/
+
+udp/udp_obj.o: udp/*.c
+	@make -j4 -C udp/
 
 clean:
 	find ./ -name *.o | xargs rm -rf

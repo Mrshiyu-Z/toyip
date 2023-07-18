@@ -2,6 +2,7 @@
 #include "ether.h"
 #include "arp.h"
 #include "ip.h"
+#include "udp.h"
 #include "icmp.h"
 #include "route.h"
 #include "lib.h"
@@ -30,7 +31,7 @@ void ip_recv_local(struct pkbuf *pkb)
             // tcp_in(pkb);
             break;
         case IP_P_UDP:
-            // udp_in(pkb);
+            udp_in(pkb);
             break;
         default:
             ipdbg("unknown ip protocol");

@@ -21,6 +21,7 @@ struct udp_sock {
 #define UDP_DEFAULT_TTL   64
 
 extern struct sock *udp_lookup_sock(unsigned short nport);
+extern void udp_in(struct pkbuf *pkb);
 extern void udp_init(void);
 extern struct sock *udp_alloc_sock(int protocol);
 

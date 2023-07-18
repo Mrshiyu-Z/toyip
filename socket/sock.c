@@ -9,6 +9,10 @@
 int alloc_socks = 0;
 int free_socks = 0;
 
+/*
+    sock增加引用计数
+    @sk: sock
+*/
 struct sock *get_sock(struct sock *sk)
 {
     sk->refcnt++;
@@ -23,12 +27,21 @@ void free_sock(struct sock *sk)
     }
 }
 
+/*
+    将sock加入到hash链表
+    @sk: sock
+    @head: hash链表的头节点
+*/
 void sock_add_hash(struct sock *sk, struct hlist_head *head)
 {
     get_sock(sk);
     hlist_add_head(&sk->hash_list, head);
 }
 
+/*
+    从hash链表中删除sock
+    @sk: sock
+*/
 void sock_del_hash(struct sock *sk)
 {
     if (!hlist_unhashed(&sk->hash_list)) {
@@ -43,6 +56,9 @@ void sock_recv_notify(struct sock *sk)
         wake_up(sk->recv_wait);
 }
 
+/*
+    
+*/
 struct pkbuf *sock_recv_pkb(struct sock *sk)
 {
     struct pkbuf *pkb = NULL;
