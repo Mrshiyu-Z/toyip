@@ -1,6 +1,9 @@
+#include "compile.h"
 #include "lib.h"
 #include "netif.h"
 #include "ip.h"
+#include "udp.h"
+#include <sys/types.h>
 
 static _inline unsigned int sum(unsigned short *data, int size, 
         unsigned int origsum)
@@ -37,4 +40,35 @@ void ip_set_checksum(struct ip *ip_hdr)
 unsigned short icmp_chksum(unsigned short *data, int size)
 {
 	return checksum(data, size, 0);
+}
+
+static _inline unsigned short tcp_udp_chksum(unsigned int src, unsigned int dst,
+		unsigned short proto, unsigned short len, unsigned short *data) 
+{
+	unsigned int sum;
+	sum = _htons(proto) + _htons(len);
+	sum += src;
+	sum += dst;
+	return checksum(data, len, sum);
+}
+
+unsigned short tcp_chksum(unsigned int src, unsigned int dst,
+		unsigned short len, unsigned short *data)
+{
+	return tcp_udp_chksum(src, dst, IP_P_TCP, len, data);
+}
+
+unsigned short udp_chksum(unsigned int src, unsigned int dst,
+		unsigned short len, unsigned short *data)
+{
+	return tcp_udp_chksum(src, dst, IP_P_UDP, len, data);
+}
+
+void udp_set_checksum(struct ip *ip_hdr, struct udp *udp_hdr)
+{
+	udp_hdr->checksum = 0;
+	udp_hdr->checksum = tcp_udp_chksum(ip_hdr->ip_src, ip_hdr->ip_dst,
+		 IP_P_UDP, _ntohs(udp_hdr->length), (unsigned short *)udp_hdr);
+	if (!udp_hdr->checksum)
+		udp_hdr->checksum = 0xffff;
 }

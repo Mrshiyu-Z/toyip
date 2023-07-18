@@ -17,19 +17,19 @@ tcpip: $(NET_STACK_OBJS)
 	$(CC) $(LFLAGS) $^ -o $@
 
 shell/shell_obj.o: shell/*.c
-	@make -C shell/
+	@make -j4 -C shell/
 
 net/net_obj.o: net/*.c
-	@make -C net/
+	@make -j4 -C net/
 
 lib/lib_obj.o: lib/*.c
-	@make -C lib/
+	@make -j4 -C lib/
 
 arp/arp_obj.o: arp/*.c
-	@make -C arp/
+	@make -j4 -C arp/
 
 ip/ip_obj.o: ip/*.c
-	@make -C ip/
+	@make -j4 -C ip/
 
 clean:
 	find ./ -name *.o | xargs rm -rf

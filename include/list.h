@@ -2,6 +2,7 @@
 #define __LIST_H__
 
 #include "compile.h"
+#include <math.h>
 
 #ifndef NULL
 #define NULL ((void *)0)
@@ -182,5 +183,147 @@ static _inline void list_del_init(struct list_head *list)
     for(entry = list_last_entry(head, typeof(*entry), member); \
         &entry->member != (head); \
         entry = list_last_entry(&entry->member, typeof(*entry), member))
+
+/*
+    HashList的头结点
+*/
+struct hlist_head {
+    struct hlist_node *first;
+};
+
+/*
+    HashList的成员节点
+    @next: 指向下一个成员节点的地址
+    @pprev: 指向前一个成员节点的next地址
+*/
+struct hlist_node {
+    struct hlist_node *next;
+    struct hlist_node **pprev;
+};
+
+/*
+    判断node是否加入到HashList,如果节点的pprev为空,说明改节点没有一个前节点
+    @node: 节点
+*/
+static _inline int hlist_unhashed(struct hlist_node *node)
+{
+    return !node->pprev;
+}
+
+/*
+    判断HashList是否为空表
+    @head: HashList的头节点
+*/
+static _inline int hlist_empty(struct hlist_head *head)
+{
+    return !head->first;
+}
+
+/*
+    HashList头节点初始化
+    @head: 头节点
+*/
+static _inline void hlist_head_init(struct hlist_head *head)
+{
+    head->first = NULL;
+}
+
+/*
+    HashList节点初始化
+    @node: 节点
+*/
+static _inline void hlist_node_init(struct hlist_node *node)
+{
+    node->next = NULL;
+    node->pprev = NULL;
+}
+
+/*
+    删除HashList中的某个节点
+    @n: 要删除的节点
+*/
+static _inline void __hlist_del(struct hlist_node *n)
+{
+    *n->pprev = n->next;             // 将n的上一个节点next设置为n的next
+    if (n->next)
+        n->next->pprev = n->pprev;
+}
+
+/*
+    删除HashList中的某个节点
+    @n: 要删除的节点
+*/
+static _inline void hlist_del(struct hlist_node *n)
+{
+    __hlist_del(n);
+    n->next = NULL;
+    n->pprev = NULL;
+}
+
+/*
+    将n插入HASH链表的头部
+    @n: 需要插入的节点
+    @h: HASH链表的头节点
+*/
+static _inline void hlist_add_head(struct hlist_node *n, struct hlist_head *h)
+{
+    n->next = h->first;              // n->next 指向 h->first
+    n->pprev = &h->first;            // n->pprev 指向 h->first->next
+    if (h->first)
+        h->first->pprev = &n->next;  // h->first->pprev 指向 n->next 
+    h->first = n;                    // h->first 指向 n
+}
+
+/*
+    将n节点插入到next的前面
+    @n: 将要插入的节点
+    @next: 将要插入的节点的后一个节点
+*/
+static _inline void hlist_add_before(struct hlist_node *n, struct hlist_node *next)
+{
+    n->next = next;              // n->next 指向 next
+    n->pprev = next->pprev;      // n->pprev 指向 next节点的前一个节点的next成员
+    *next->pprev = n;            // next节点的前一个节点的next 指向 n
+    next->pprev = &n->next;      // next->pprev 指向 n->next的地址
+}
+
+/*
+    将next节点插入到n的后面
+    @n: 将要插入的节点的前一个节点
+    @next: 将要插入的节点
+*/
+static _inline void hlist_add_after(struct hlist_node *n, struct hlist_node *next)
+{
+    next->next = n->next;              // next->next 指向 n的下一个节点
+    next->pprev = &n->next;            // next->pprev 指向 n->next的地址
+    if (n->next)
+        n->next->pprev = &next->next;  // 将n的下一个节点的pprev 指向 next节点的next成员地址
+    n->next = next;                    // n->next 指向 n
+}
+
+/*
+    获取hash表元素的地址
+    @ptr: 已知结构体成员的地址
+    @type: 结构体成员类型
+    @member: 结构体成员,ptr在结构体中对应的成员
+*/
+#define hlist_entry(ptr, type, member) list_entry(ptr, type, member)
+
+#define hlist_for_each_entry2(entry, head, member) \
+    for (entry = ((head)->first) ? hlist_entry((head)->first, typeof(*entry), member) : NULL; \
+        entry;\
+        entry = (entry->member.next) ? hlist_entry(entry->member.next, typrof(*entry), member) : NULL)
+
+/*
+    循环遍历HASH链表的每一个成员
+    @entry: 获取到的结构体的指针,指向结构体
+    @node: 用于循环时指向HASH链表的每一个节点
+    @head: HASH链表的头节点
+    @member: HASH链表中的节点在结构体中的成员名字
+*/
+#define hlist_for_each_entry(entry, node, head, member) \
+    for (node = (head)->first; \
+        node && (entry = hlist_entry(node, typeof(*entry), member));\
+        node = node->next)
 
 #endif
