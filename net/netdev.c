@@ -87,7 +87,7 @@ void netdev_tx(struct netdev *dev, struct pkbuf *pkb, int len,
             macfmt(ehdr->eth_src),
             macfmt(ehdr->eth_dst),
             ethpro(proto));
-    pkb->pk_len = len + ETH_HRD_SZ;
+    pkb->pk_len = len + ETH_HDR_SZ;
     dev->net_ops->xmit(dev,pkb);
     free_pkb(pkb);
 }

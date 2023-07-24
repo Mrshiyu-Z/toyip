@@ -54,11 +54,11 @@ struct pkbuf *alloc_pkb(int size)
 /*
     为设备分配网络包
     @nd:    网络设备
-    @(nd->net_mtu + ETH_HRD_SZ):   分配的内存大小,mtu+以太网头部
+    @(nd->net_mtu + ETH_HDR_SZ):   分配的内存大小,mtu+以太网头部
 */
 struct pkbuf *alloc_netdev_pkb(struct netdev *nd)
 {
-    return alloc_pkb(nd->net_mtu + ETH_HRD_SZ);
+    return alloc_pkb(nd->net_mtu + ETH_HDR_SZ);
 }
 
 /*

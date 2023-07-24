@@ -75,7 +75,7 @@ void ip_in(struct netdev *dev, struct pkbuf *pkb)
         goto err_free_pkb;
     }
     /* 检查报文长度 */
-    if (pkb->pk_len < ETH_HRD_SZ + IP_HDR_SZ) {
+    if (pkb->pk_len < ETH_HDR_SZ + IP_HDR_SZ) {
         ipdbg("ip packet length is too small");
         goto err_free_pkb;
     }
@@ -101,7 +101,7 @@ void ip_in(struct netdev *dev, struct pkbuf *pkb)
     ip_ntoh(iphdr);
     /* 再次检查头部相关长度字段 */
     if (iphdr->ip_len < hlen ||
-        pkb->pk_len < ETH_HRD_SZ + iphdr->ip_len) {
+        pkb->pk_len < ETH_HDR_SZ + iphdr->ip_len) {
         ipdbg("ip packet length is too small");
         goto err_free_pkb;
     }
@@ -111,8 +111,8 @@ void ip_in(struct netdev *dev, struct pkbuf *pkb)
         这里重新调整内存大小,使其为ip数据包的大小
         减少内存的浪费
     */
-    if (pkb->pk_len > ETH_HRD_SZ + iphdr->ip_len) {
-        pkb_trim(pkb, ETH_HRD_SZ + iphdr->ip_len);
+    if (pkb->pk_len > ETH_HDR_SZ + iphdr->ip_len) {
+        pkb_trim(pkb, ETH_HDR_SZ + iphdr->ip_len);
     }
     ipdbg(IPFMT " -> " IPFMT "(%d/%d bytes)",
             ipfmt(iphdr->ip_src), ipfmt(iphdr->ip_dst),

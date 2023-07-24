@@ -56,7 +56,7 @@ struct ip
 #define ipndlen(nip)   (_ntohs((nip)->ip_len) - iphlen(nip))              // IP数据包长度(网络字节序)
 #define ipdata(ip)     ((unsigned char *)(ip) + iphlen(ip))               // IP数据包数据
 #define ipoff(ip)      (((ip)->ip_fragoff & IP_FRAG_OFF) * 8)             // IP数据包偏移量
-#define pkb2ip(pkb)    ((struct ip *)((pkb)->pk_data + ETH_HRD_SZ))       // 从pkb中取出ip首部
+#define pkb2ip(pkb)    ((struct ip *)((pkb)->pk_data + ETH_HDR_SZ))       // 从pkb中取出ip首部
 
 #define IPFMT     "%d.%d.%d.%d"
 #define ipfmt(ip)\

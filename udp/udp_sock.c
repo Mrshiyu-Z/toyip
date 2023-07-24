@@ -250,7 +250,7 @@ static int udp_hash(struct sock *sk)
 static int udp_send_pkb(struct sock *sk, struct pkbuf *pkb)
 {
     ip_send_out(pkb);
-    return pkb->pk_len - ETH_HRD_SZ - IP_HDR_SZ - UDP_HDR_SZ;
+    return pkb->pk_len - ETH_HDR_SZ - IP_HDR_SZ - UDP_HDR_SZ;
 }
 
 /*
@@ -269,7 +269,7 @@ static int udp_init_pkb(struct sock *sk, struct pkbuf *pkb,
     ip_hdr->ip_hlen = IP_HDR_SZ >> 2;
     ip_hdr->ip_ver = IP_VERSION_4;
     ip_hdr->ip_tos = 0;
-    ip_hdr->ip_len = _htons(pkb->pk_len - ETH_HRD_SZ);
+    ip_hdr->ip_len = _htons(pkb->pk_len - ETH_HDR_SZ);
     ip_hdr->ip_id = _htons(udp_id);
     ip_hdr->ip_fragoff = 0;
     ip_hdr->ip_ttl = UDP_DEFAULT_TTL;
@@ -316,7 +316,7 @@ static int udp_send_buf(struct sock *sk, void *buf, int size,
     if (!sk->sk_sport && sock_autobind(sk) < 0)
         return -1;
     
-    pkb = alloc_pkb(ETH_HRD_SZ + IP_HDR_SZ + UDP_HDR_SZ + size);
+    pkb = alloc_pkb(ETH_HDR_SZ + IP_HDR_SZ + UDP_HDR_SZ + size);
     if (udp_init_pkb(sk, pkb, buf, size, &sk_addr) < 0) {
         free_pkb(pkb);
         return -1;

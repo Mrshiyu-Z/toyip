@@ -169,7 +169,7 @@ static _inline void list_del_init(struct list_head *list)
     @member: 结构体成员
 */
 #define list_for_each_entry_safe_continue(entry, next, head, member) \
-    for (next = list_first_entry(&entry->member, typrof(*entry), member); \
+    for (next = list_first_entry(&entry->member, typeof(*entry), member); \
         &entry->member != (head); \
         entry = next, next = list_first_entry(&next->member, typeof(*entry), member))
 

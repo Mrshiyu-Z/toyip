@@ -3,7 +3,7 @@
 #include "netif.h"
 #include "ip.h"
 #include "udp.h"
-#include <sys/types.h>
+#include "tcp.h"
 
 static _inline unsigned int sum(unsigned short *data, int size, 
         unsigned int origsum)
@@ -71,4 +71,11 @@ void udp_set_checksum(struct ip *ip_hdr, struct udp *udp_hdr)
 		 IP_P_UDP, _ntohs(udp_hdr->length), (unsigned short *)udp_hdr);
 	if (!udp_hdr->checksum)
 		udp_hdr->checksum = 0xffff;
+}
+
+void tcp_set_checksum(struct ip *ip_hdr, struct tcp *tcp_hdr)
+{
+	tcp_hdr->checksum = 0;
+	tcp_hdr->checksum = tcp_udp_chksum(ip_hdr->ip_src, ip_hdr->ip_dst,
+		 IP_P_TCP, ipndlen(ip_hdr), (unsigned short *)tcp_hdr);
 }

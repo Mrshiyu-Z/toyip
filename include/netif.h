@@ -73,6 +73,15 @@ static _inline unsigned short _htons(unsigned short host)
 
 #define _ntohs(net) _htons(net)
 
+static _inline unsigned int _htonl(unsigned int host)
+{
+    return ((host & 0x000000ff) << 24) |
+        ((host & 0x0000ff00) << 8) |
+        ((host & 0x00ff0000) >> 8) |
+        ((host & 0xff000000) >> 24);
+}
+#define _ntohl(net) _htonl(net)
+
 extern struct tapdev *tap;
 extern struct netdev *veth;
 extern struct netdev *loop;

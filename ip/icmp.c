@@ -249,7 +249,7 @@ void icmp_send(unsigned char type, unsigned char code,
     // 所以为了最大可能保证icmp报文能够到达对方,pay_len必须小于576
     if ( IP_HDR_SZ + ICMP_HDR_SZ + pay_len > 576 )
         pay_len = 576 - IP_HDR_SZ - ICMP_HDR_SZ;
-    pkb = alloc_pkb(ETH_HRD_SZ + IP_HDR_SZ + ICMP_HDR_SZ + pay_len);
+    pkb = alloc_pkb(ETH_HDR_SZ + IP_HDR_SZ + ICMP_HDR_SZ + pay_len);
     icmp_hdr = (struct icmp *)(pkb2ip(pkb)->ip_data);
     icmp_hdr->icmp_type = type;
     icmp_hdr->icmp_code = code;

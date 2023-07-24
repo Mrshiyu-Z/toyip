@@ -18,7 +18,7 @@
 static struct ether *eth_init(struct netdev *dev, struct pkbuf *pkb)
 {
     struct ether *ehdr = (struct ether *)pkb->pk_data;
-    if (pkb->pk_len < ETH_HRD_SZ)
+    if (pkb->pk_len < ETH_HDR_SZ)
     {
         free_pkb(pkb);
         dbg("received packet is too small:%d bytes", pkb->pk_len);

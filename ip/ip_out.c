@@ -21,7 +21,7 @@ void ip_send_dev(struct netdev *dev, struct pkbuf *pkb)
     // 查看是否是本地路由
     if ( rt->rt_flags & RT_LOCALHOST ){
         ipdbg("To loopback");
-        netdev_tx(dev, pkb, pkb->pk_len - ETH_HRD_SZ, 
+        netdev_tx(dev, pkb, pkb->pk_len - ETH_HDR_SZ, 
                     ETH_P_IP, dev->net_hwaddr);
         return;
     }
@@ -48,7 +48,7 @@ void ip_send_dev(struct netdev *dev, struct pkbuf *pkb)
         arpdbg("arp entry is waiting");
         list_add_tail(&pkb->pk_list, &ae->ae_list);
     } else {
-        netdev_tx(dev, pkb, pkb->pk_len - ETH_HRD_SZ,
+        netdev_tx(dev, pkb, pkb->pk_len - ETH_HDR_SZ,
                     ETH_P_IP, ae->ae_hwaddr);
     }
 }

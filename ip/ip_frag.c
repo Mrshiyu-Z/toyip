@@ -99,17 +99,17 @@ struct pkbuf *reass_frag(struct ip_frag *frag)
     frag_hdr = pkb2ip(frag_pkb);
 
     /* 利用第一个分片的pkb,初始化一个重组后的pkb,后面所有分片的数据部分都会复制到这个pkb中 */
-    pkb = alloc_pkb(ETH_HRD_SZ + len);
+    pkb = alloc_pkb(ETH_HDR_SZ + len);
     pkb->pk_protocol = ETH_P_IP;
     p = pkb->pk_data;
     /* 将第一个分片的以太网头部和IP头部 复制 到重组后的pkb */
-    memcpy(p, frag_pkb->pk_data, ETH_HRD_SZ + hlen);
+    memcpy(p, frag_pkb->pk_data, ETH_HDR_SZ + hlen);
     /* 因为重组后的报文是一个完整的IP报文,所以不存在分片,所以偏移量设置为0 */
     pkb2ip(pkb)->ip_fragoff = 0;
     pkb2ip(pkb)->ip_len = len;
 
     /* 将指针移动到IP报文data字段的位置 */
-    p += ETH_HRD_SZ + hlen;
+    p += ETH_HDR_SZ + hlen;
     list_for_each_entry(frag_pkb, &frag->frag_pkb, pk_list) {
         frag_hdr = pkb2ip(frag_pkb);
         /* 上面已经复制过以太网头部和IP头部了,所以这里只复制data部分 */
@@ -264,7 +264,7 @@ struct pkbuf *ip_frag(struct pkbuf *pkb, struct ip *orig, int hlen,
     struct pkbuf *frag_pkb;
     struct ip *frag_hdr;
 
-    frag_pkb = alloc_pkb(ETH_HRD_SZ + hlen + dlen);
+    frag_pkb = alloc_pkb(ETH_HDR_SZ + hlen + dlen);
 
     frag_pkb->pk_protocol = pkb->pk_protocol;
     frag_pkb->pk_type = pkb->pk_type;

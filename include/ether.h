@@ -3,7 +3,7 @@
 
 #include <string.h>
 
-#define ETH_HRD_SZ sizeof(struct ether)     /* 以太网帧头部长度 */
+#define ETH_HDR_SZ sizeof(struct ether)     /* 以太网帧头部长度 */
 #define ETH_ALEN   6                        /* MAC地址长度 */
 
 /*

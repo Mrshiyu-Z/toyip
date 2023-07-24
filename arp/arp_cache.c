@@ -53,7 +53,7 @@ void arp_queue_send(struct arpentry *ae)
         pkb = list_first_entry(&ae->ae_list, struct pkbuf, pk_list);
         list_del(ae->ae_list.next);
         arpdbg("send pending packet");
-        netdev_tx(ae->ae_dev, pkb, pkb->pk_len - ETH_HRD_SZ, 
+        netdev_tx(ae->ae_dev, pkb, pkb->pk_len - ETH_HDR_SZ, 
                 pkb->pk_protocol, ae->ae_hwaddr);
     }
 }

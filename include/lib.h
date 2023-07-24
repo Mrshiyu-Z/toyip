@@ -15,6 +15,7 @@
 #include <assert.h>
 #include <ctype.h>
 #include <stdarg.h>
+#include <assert.h>
 
 /* pthread */
 #include <pthread.h>
@@ -31,8 +32,10 @@ typedef void *(*pfunc_t)(void *);
 #define NET_DEBUG_ARP		0x00000004
 #define NET_DEBUG_IP		0x00000008
 #define NET_DEBUG_ICMP		0x00000010
-#define NET_DEBUG_TCP		0x00000020
-#define NET_DEBUG_UDP		0x00000040
+#define NET_DEBUG_UDP		0x00000020
+#define NET_DEBUG_TCP		0x00000040
+#define NET_DEBUG_TCPSTATE  0x00000080
+
 
 /*
     控制debug的输出颜色
@@ -100,6 +103,24 @@ do {\
         dbg(purple(udp)" "fmt, ##args);\
 }while(0)
 
+#define tcpdbg(fmt, args...)\
+do {\
+    if (NET_DEBUG_TCP)\
+        dbg(purple(tcp)" "fmt, ##args);\
+}while(0)
+
+#define tcpsdbg(fmt, args...)\
+do {\
+    if (NET_DEBUG_TCPSTATE)\
+        dbg(green(tcpstate)" "fmt, ##args);\
+}while(0)
+
+#define min(x,y) ({\
+    typeof(x) _x = (x);\
+    typeof(y) _y = (y);\
+    (void) (&_x == &_y);\
+    _x < _y ? _x : _y; })
+
 extern void *xzalloc(int size);
 extern void *xmalloc(int size);
 extern void perrx(char *str);
@@ -112,9 +133,9 @@ extern unsigned short udp_chksum(unsigned int src, unsigned int dst,
 		unsigned short len, unsigned short *data);
 struct ip;
 struct udp;
-extern void udp_set_checksum(struct ip *ip_hdr, struct udp *udp_hdr);
-
-struct ip;
+struct tcp;
 extern void ip_set_checksum(struct ip *ip_hdr);
+extern void udp_set_checksum(struct ip *ip_hdr, struct udp *udp_hdr);
+extern void tcp_set_checksum(struct ip *ip_hdr, struct tcp *tcp_hdr);
 
 #endif

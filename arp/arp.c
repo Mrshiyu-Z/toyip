@@ -13,7 +13,7 @@ void arp_request(struct arpentry *ae)
     struct ether *ethhdr;
     struct arp *arphdr;
 
-    pkb = alloc_pkb(ETH_HRD_SZ + ARP_HDR_SZ);
+    pkb = alloc_pkb(ETH_HDR_SZ + ARP_HDR_SZ);
     ethhdr = (struct ether *)pkb->pk_data;
     arphdr = (struct arp *)ethhdr->eth_data;
     /* 给ARP报文赋一些正常的初始值 */
@@ -34,7 +34,7 @@ void arp_request(struct arpentry *ae)
         ipfmt(arphdr->arp_src_ip), 
         macfmt(arphdr->arp_src_hw),
         ipfmt(arphdr->arp_dst_ip));
-    netdev_tx(ae->ae_dev, pkb, pkb->pk_len - ETH_HRD_SZ, ETH_P_ARP, BRD_HWADDR);
+    netdev_tx(ae->ae_dev, pkb, pkb->pk_len - ETH_HDR_SZ, ETH_P_ARP, BRD_HWADDR);
 }
 
 /*
@@ -124,7 +124,7 @@ void arp_in(struct netdev *dev, struct pkbuf *pkb)
     }
 
     /* 如果报文长度不够 */
-    if ( pkb->pk_len < ETH_HRD_SZ + ARP_HDR_SZ)
+    if ( pkb->pk_len < ETH_HDR_SZ + ARP_HDR_SZ)
     {
         arpdbg("arp packet is too small.");
         goto err_free_pkb;
