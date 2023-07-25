@@ -24,8 +24,8 @@ struct tcp {
             psh:1,                    /* 推送,置为1时,接收方优先处理此报文 */
             ack:1,                    /* ack==1时,ackn有效 */
             urg:1,                    /* urg==1时,urgptr有效 */
-            ece:1,                    /* ecn==1时,表示 */
-            cwr:1;
+            ece:1,                    /* ecn==1时,通知对方从对方到这边的网络有阻塞 */
+            cwr:1;                    /* cwr==1时,通知对方已将拥塞窗口减小 */
 #else
     unsigned short doff:4,
             reserved:4,
@@ -38,9 +38,9 @@ struct tcp {
 			syn:1,
 			fin:1;
 #endif
-    unsigned short window;
-    unsigned short checksum;
-    unsigned short urgptr;
+    unsigned short window;             /* 窗口大小 */
+    unsigned short checksum;           /* 校验和 */
+    unsigned short urgptr;             /* 应急指针 */
     unsigned char data[0];
 }__attribute__((packed));
 
@@ -52,47 +52,47 @@ struct tcp {
 #define tcptext(tcp)  ((unsigned char *)(tcp) + tcphlen(tcp))
 
 enum tcp_state {
-    TCP_CLOSE = 1,
-    TCP_LISTEN,
-    TCP_SYN_RECV,
-    TCP_SYN_SENT,
-    TCP_ESTABLISHED,
-    TCP_CLOSE_WAIT,
-    TCP_LAST_ACK,
-    TCP_FIN_WAIT1,
-    TCP_FIN_WAIT2,
-    TCP_CLOSING,
-    TCP_TIME_WAIT,
+    TCP_CLOSE = 1,            /* 关闭 */
+    TCP_LISTEN,               /* 监听 */
+    TCP_SYN_RECV,             /* 被动方SYN已收到,并发送SYN+ACK后 */
+    TCP_SYN_SENT,             /* 主动方SYN已发送 */
+    TCP_ESTABLISHED,          /* 连接已建立 */
+    TCP_CLOSE_WAIT,           /* 被动方已收到对方发来的FIN */
+    TCP_LAST_ACK,             /* 被动方已发送fin报文,等待最后一个ack */
+    TCP_FIN_WAIT1,            /* 主动方已发送fin报文,等待对方发送最后一个数据包 */
+    TCP_FIN_WAIT2,            /* 主动方发送fin之后,收到data和ack */
+    TCP_CLOSING,              /* 双方都主动发送fin报文 */
+    TCP_TIME_WAIT,            /* 主动方发送最后一个ack后的状态 */
     TCP_MAX_STATE
 };
 
 struct tcp_sock {
-    struct sock sk;
+    struct sock sk;   /* tcp sock */
     struct hlist_node bhash_list;
     unsigned int bhash;
     int accept_backlog;
     int backlog;
-    struct list_head listen_queue;
+    struct list_head listen_queue;  /* tcp_sock处于listen状态时,listen_queue用于存放通过这个tcp_sock建立连接的child_tcp_sock*/
     struct list_head accept_queue;
-    struct list_head list;
+    struct list_head list;  /* 当tcp_sock是child_tcp_sock,这个list用于添加到listen_queue */
     struct tcp_timer timewait;
     struct tcpip_wait *wait_accept;
     struct tcpip_wait *wait_connect;
-    struct tcp_sock *parent;
+    struct tcp_sock *parent; /* 当tcp_sock是child_tcp_sock,parent指向listen_tcp_sock */
     unsigned int flags;
     struct cbuf *rcv_buf;
     struct list_head rcv_reass;
-    unsigned int snd_una;
-    unsigned int snd_nxt;
+    unsigned int snd_una;  /* send unacknowledged 已发送但未收到ack的seq */
+    unsigned int snd_nxt;  /* send next seq */
     unsigned int snd_wnd;
     unsigned int snd_up;
     unsigned int snd_wl1;
     unsigned int snd_wl2;
-    unsigned int iss;
-    unsigned int rcv_nxt;
-    unsigned int rcv_wnd;
+    unsigned int iss;      /* init send seq num 初始发送序列号 */
+    unsigned int rcv_nxt;  /* recv next 下一个序列号*/
+    unsigned int rcv_wnd;  
     unsigned int rcv_up;
-    unsigned int irs;
+    unsigned int irs;      /* init recv seq num 初始接收序列号 */
     unsigned int state;
 };
 
@@ -104,18 +104,21 @@ struct tcp_sock {
 #define TCP_F_ACKNOW        0x00000002
 #define TCP_F_ACKDELAY      0x00000004
 
+/*
+    tcp分片
+*/
 struct tcp_segment {
-    unsigned int seq;
-    unsigned int ack;
-    unsigned int lastseq;
-    unsigned int len;
-    unsigned int dlen;
-    unsigned int wnd;
-    unsigned int up;
+    unsigned int seq;         /* 序列号 */
+    unsigned int ack;         /* 确认号 */
+    unsigned int lastseq;     /* data部分最后一个字节的序列号 */
+    unsigned int len;         /* 序列号位置 */
+    unsigned int dlen;        /* 数据长度 */
+    unsigned int wnd;         /* 窗口大小 */
+    unsigned int up;          /* 紧急指针 */
     unsigned int prc;
-    unsigned int *text;
-    struct ip *ip_hdr;
-    struct tcp *tcp_hdr;
+    unsigned char *text;      /* 数据部分 */
+    struct ip *ip_hdr;        /* ip指针 */
+    struct tcp *tcp_hdr;      /* tcp指针 */
 };
 
 static _inline int tcp_accept_queue_full(struct tcp_sock *tsk)

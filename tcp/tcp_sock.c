@@ -12,6 +12,13 @@
 
 static struct tcp_hash_table tcp_table;
 
+/*
+    利用四元组在已建立的连接中寻找指定sock
+    @src: 源IP地址
+    @dst: 目的IP地址
+    @src_port: 源端口
+    @dst_port: 目的端口
+*/
 static struct sock *tcp_lookup_sock_establish(unsigned int src, unsigned int dst,
                 unsigned short src_port, unsigned short dst_port)
 {
@@ -29,6 +36,11 @@ static struct sock *tcp_lookup_sock_establish(unsigned int src, unsigned int dst
     return NULL;
 }
 
+/*
+    通过addr和port在listen表中查找sock
+    @addr: ip addr
+    @nport: tcp port
+*/
 static struct sock *tcp_lookup_sock_listen(unsigned int addr, unsigned int nport)
 {
     struct hlist_head *head = tcp_lhash_head(_ntohs(nport) & TCP_LHASH_MASK);
@@ -47,7 +59,7 @@ struct sock *tcp_lookup_sock(unsigned int src, unsigned int dst,
 {
     struct sock *sk;
     sk = tcp_lookup_sock_establish(src, dst, src_port, dst_port);
-    if (!sk)
+    if (!sk) /*  如果已建立连接的hash表中没找到,则在listen表中找 */
         sk = tcp_lookup_sock_listen(dst, dst_port);
     return sk;
 }
@@ -118,14 +130,21 @@ void tcp_unbhash(struct tcp_sock *tsk)
     }
 }
 
+/*
+    将sock进行hash处理
+    @sk: sock套接字
+*/
 int tcp_hash(struct sock *sk)
 {
     struct tcp_sock *tsk = tcpsk(sk);
     struct hlist_head *head;
     unsigned int hash;
-
-    if (tsk->state == TCP_CLOSE)
+    if (tsk->state == TCP_CLOSE)  /* close状态不处理 */
         return -1;
+    /* 
+        设置sock->hash
+        获取hash链表的头节点
+    */
     if (tsk->state == TCP_LISTEN) {
         sk->hash = _ntohs(sk->sk_sport) & TCP_LHASH_MASK;
         head = tcp_lhash_head(sk->hash);
@@ -133,11 +152,11 @@ int tcp_hash(struct sock *sk)
         hash = tcp_ehashfn(sk->sk_saddr, sk->sk_daddr, 
                 sk->sk_sport, sk->sk_dport);
         head = tcp_ehash_head(hash);
-        if (tcp_ehash_conflict(head, sk))
+        if (tcp_ehash_conflict(head, sk))   /* 查看是否存在重复sock */
             return -1;
         sk->hash = hash;
     }
-    sock_add_hash(sk, head);
+    sock_add_hash(sk, head);  /* 将sock 加入到 hash表中 */
     return 0;
 }
 
@@ -380,6 +399,10 @@ struct tcp_sock *get_tcp_sock(struct tcp_sock *tsk)
 
 int tcp_id;
 
+/*
+    为tcp sock申请一片内存
+    @protocol: IP_P_TCP
+*/
 struct sock *tcp_alloc_sock(int protocol)
 {
     struct tcp_sock *tsk;
@@ -388,8 +411,10 @@ struct sock *tcp_alloc_sock(int protocol)
     tsk = xzalloc(sizeof(*tsk));
     alloc_socks++;
     tsk->sk.sk_ops = &tcp_ops;
+    /* 初始状态为close */
     tsk->state = TCP_CLOSE;
     tsk->rcv_wnd = TCP_DEFAULT_WINDOW;
+    /* 初始化各种链表 */
     list_init(&tsk->listen_queue);
     list_init(&tsk->accept_queue);
     list_init(&tsk->list);

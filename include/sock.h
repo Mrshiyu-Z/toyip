@@ -37,8 +37,8 @@ struct sock {
     struct sock_ops *sk_ops;        // SOCK的操作函数
     struct rtentry *sk_dst;         // SOCK的路由
     struct list_head recv_queue;    // SOCK的接收队列,队列上是pkb报文
-    struct tcpip_wait *recv_wait;   // 
-    unsigned int hash;             
+    struct tcpip_wait *recv_wait;   // 阻塞点
+    unsigned int hash;              // hash值         
     struct hlist_node hash_list;    // HASH节点,用于挂在HASH链表上 
     int refcnt;                     // 引用计数
 }__attribute__((packed));

@@ -22,6 +22,9 @@
 #define tcp_bhash_head(hash) (&tcp_table.btable[hash])
 #define tcp_lhash_head(hash) (&tcp_table.ltable[hash])
 
+/*
+    tcp hash 表
+*/
 struct tcp_hash_table {
     struct hlist_head etable[TCP_EHASH_SIZE];  /* establish hash table */
     struct hlist_head ltable[TCP_LHASH_SIZE];  /* listen hash table */
@@ -29,6 +32,9 @@ struct tcp_hash_table {
     int bfree;  /* [bmin, bmax] */
 };
 
+/*
+    tcp establish hash 计算
+*/
 static __inline unsigned int tcp_ehashfn(unsigned int src, unsigned int dst,
                 unsigned short src_port, unsigned short dst_port)
 {
@@ -39,6 +45,11 @@ static __inline unsigned int tcp_ehashfn(unsigned int src, unsigned int dst,
     return hash & TCP_EHASH_SIZE;
 }
 
+/*
+    判断hash表上是否存在重复的sock
+    @head: hash表头节点
+    @sk: 查找的sock
+*/
 static _inline int tcp_ehash_conflict(struct hlist_head *head, struct sock *sk)
 {
     struct hlist_node *node;

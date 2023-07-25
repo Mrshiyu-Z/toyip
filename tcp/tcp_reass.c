@@ -4,7 +4,6 @@
 #include "cbuf.h"
 #include "sock.h"
 #include "netif.h"
-#include <assert.h>
 
 struct tcp_reass_head {
     struct list_head list;

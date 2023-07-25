@@ -46,28 +46,39 @@ unsigned int alloc_new_iss(void)
     return iss;
 }
 
+/*
+    当listen状态接收到syn包时
+    此函数创建一个新的sock来处理
+    @tsk: listen sock的 tcp_sock
+    @seg: 收到的 tcp 片段 
+*/
 static struct tcp_sock *tcp_listen_child_sock(struct tcp_sock *tsk,
                         struct tcp_segment *seg)
 {
     struct sock *newsk = tcp_alloc_sock(tsk->sk.protocol);
     struct tcp_sock *newtsk = tcpsk(newsk);
-    tcp_set_state(newtsk, TCP_SYN_RECV);
+    tcp_set_state(newtsk, TCP_SYN_RECV);     /* 设置状态为 syn recv */
     newsk->sk_saddr = seg->ip_hdr->ip_dst;
     newsk->sk_daddr = seg->ip_hdr->ip_dst;
     newsk->sk_sport = seg->tcp_hdr->dst;
     newsk->sk_dport = seg->tcp_hdr->src;
-
-    if (tcp_hash(&newtsk->sk) < 0) {
+    if (tcp_hash(&newtsk->sk) < 0) {          /* 设置 sock->hash并加入到hash链表上 */
         free(newtsk);
         return NULL;
     }
 
-    newtsk->parent = get_tcp_sock(tsk);
-    list_add(&newtsk->list, &tsk->listen_queue);
+    newtsk->parent = get_tcp_sock(tsk);       /* 将tcp_sock的parent设置为listen状态的sock */
+    list_add(&newtsk->list, &tsk->listen_queue);   /* 将tcp_sock添加到listen_sock的listen_queue中 */
 
     return get_tcp_sock(newtsk);
 }
 
+/*
+    tcp listen状态处理函数
+    @pkb: pkb包
+    @seg: tcp分片
+    @tsk: tcp sock
+*/
 static void tcp_listen(struct pkbuf *pkb, struct tcp_segment *seg,
             struct tcp_sock *tsk)
 {
@@ -78,26 +89,26 @@ static void tcp_listen(struct pkbuf *pkb, struct tcp_segment *seg,
     if (tcp_hdr->rst)
         goto discarded;
     tcpsdbg("2. check ack");
-    if (tcp_hdr->ack) {
+    if (tcp_hdr->ack) { /* listen状态收到ack包是不合理的 */
         tcp_send_reset(tsk, seg);
         goto discarded;
     }
     tcpsdbg("3. check syn");
-    if (!tcp_hdr->syn)
+    if (!tcp_hdr->syn) /* listen状态收到syn不为1的包是不合理的 */
         goto discarded;
     
-    newtsk = tcp_listen_child_sock(tsk, seg);
+    newtsk = tcp_listen_child_sock(tsk, seg); /* 创建一个新的tcp_sock */
     if (!newtsk) {
         tcpsdbg("cannot alloc new sock");
         goto discarded;
     }
-    newtsk->irs = seg->seq;
-    newtsk->iss = alloc_new_iss();
-    newtsk->rcv_nxt = seg->seq + 1;
+    newtsk->irs = seg->seq;  /* 设置初始接收序列号 */
+    newtsk->iss = alloc_new_iss();  /* 设置初始发送序列号 */ 
+    newtsk->rcv_nxt = seg->seq + 1;   /* +1 因为这是syn报文,计数为1,所以recv next = seq + 1 */
 
-    tcp_send_synack(newtsk, seg);
-    newtsk->snd_nxt = newtsk->iss + 1;
-    newtsk->snd_una = newtsk->iss;
+    tcp_send_synack(newtsk, seg);  /* 给syn报文 回复 ack 报文*/
+    newtsk->snd_nxt = newtsk->iss + 1;  /* send next seq == init send seq + 1 */
+    newtsk->snd_una = newtsk->iss; /* 记录已发送但未收到的seq,此时等于初始序列号 */
 
 discarded:
     free_pkb(pkb);
@@ -112,6 +123,12 @@ static void tcp_closed(struct tcp_sock *tsk, struct pkbuf *pkb,
     free_pkb(pkb);
 }
 
+/*
+    处理处于SYN_SENT状态的sock
+    @pkb: pkb
+    @seg: pkb中的tcp片段
+    @tsk: tcp_sock
+*/
 static void tcp_synsent(struct pkbuf *pkb, struct tcp_segment *seg,
             struct tcp_sock *tsk)
 {
@@ -119,9 +136,10 @@ static void tcp_synsent(struct pkbuf *pkb, struct tcp_segment *seg,
     tcpsdbg("SYN-SENT");
     tcpsdbg("1. check ack");
     if (tcp_hdr->ack) {
+        /* 如果ack小于等于init send seq 或者 大于 send next */
         if (seg->ack <= tsk->iss || seg->ack > tsk->snd_nxt) {
-            tcp_send_reset(tsk, seg);
             goto discarded;
+            tcp_send_reset(tsk, seg);
         }
     }
     tcpsdbg("2. check rst");
@@ -139,11 +157,11 @@ static void tcp_synsent(struct pkbuf *pkb, struct tcp_segment *seg,
     tcpsdbg("3. No check the security and precedence");
     tcpsdbg("4. check syn");
     if (tcp_hdr->syn) {
-        tsk->irs = seg->seq;
-        tsk->rcv_nxt = seg->seq + 1;
+        tsk->irs = seg->seq;   /* 初始接收序列号 */
+        tsk->rcv_nxt = seg->seq + 1;  /* 应该接收的下一个序列号 */
         if (tcp_hdr->ack)
-            tsk->snd_una = seg->ack;
-        if (tsk->snd_una > tsk->iss) {
+            tsk->snd_una = seg->ack; /* 发送的seq的ack */
+        if (tsk->snd_una > tsk->iss) { /*  */
             tcp_set_state(tsk, TCP_ESTABLISHED);
             tsk->snd_wnd = seg->wnd;
             tsk->snd_wl1 = seg->seq;
@@ -202,11 +220,17 @@ static _inline void tcp_update_window(struct tcp_sock *tsk,
         __tcp_update_window(tsk, seg);
 }
 
+/*
+    @pkb: pkb数据包
+    @seg: tcp分片
+    @sk: tcp sock
+*/
 void tcp_process(struct pkbuf *pkb, struct tcp_segment *seg, struct sock *sk)
 {
     struct tcp_sock *tsk = tcpsk(sk);
     struct tcp *tcp_hdr = seg->tcp_hdr;
     tcp_dbg_state(tsk);
+    /* 下列判断是基于sock已存在的情况 */
     if (!tsk || tsk->state == TCP_CLOSE)
         return tcp_closed(tsk, pkb, seg);
     if (tsk->state == TCP_LISTEN)

@@ -40,16 +40,22 @@ static char *tcp_control_sring(struct tcp *tcp_hdr)
     return ss;
 }
 
+/*
+    初始化一个tcp分片
+    @seg: 需要初始化的分片
+    @ip_hdr: 数据包的IP报文
+    @tcp_hdr: 数据包的tcp报文
+*/
 static void tcp_segment_init(struct tcp_segment *seg, struct ip *ip_hdr, struct tcp *tcp_hdr)
 {
-    seg->seq = _ntohl(tcp_hdr->seq);
-    seg->dlen = ipdlen(ip_hdr) - tcphlen(tcp_hdr);
-    seg->len = seg->dlen + tcp_hdr->syn + tcp_hdr->fin;
-    seg->text = tcptext(tcp_hdr);
-    seg->lastseq = seg->len ? (seg->seq + seg->len - 1 ) : seg->seq;
-    seg->ack = tcp_hdr->ack ? _ntohl(tcp_hdr->ackn) : 0;
-    seg->wnd = _ntohs(tcp_hdr->window);
-    seg->up = _ntohs(tcp_hdr->urgptr);
+    seg->seq = _ntohl(tcp_hdr->seq);                             /* 序列号 */
+    seg->dlen = ipdlen(ip_hdr) - tcphlen(tcp_hdr);                     /* 数据长度,由ip data len减去tcp header len获得 */ 
+    seg->len = seg->dlen + tcp_hdr->syn + tcp_hdr->fin;                /* 序列号长度,当syn或fin设置为1时,data len可能为0 */
+    seg->text = tcptext(tcp_hdr);                                      /* tcp数据部分,unsigned char */
+    seg->lastseq = seg->len ? (seg->seq + seg->len - 1 ) : seg->seq;   /* 最后一个字节的序列号 */
+    seg->ack = tcp_hdr->ack ? _ntohl(tcp_hdr->ackn) : 0;          /* 确认号,ack位置1时有效 */
+    seg->wnd = _ntohs(tcp_hdr->window);                           /* 窗口大小 */
+    seg->up = _ntohs(tcp_hdr->urgptr);                            /* 紧急指针位置 */
     seg->prc = 0;
     seg->ip_hdr = ip_hdr;
     seg->tcp_hdr = tcp_hdr;

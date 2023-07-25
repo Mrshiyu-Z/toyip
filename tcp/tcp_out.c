@@ -33,6 +33,12 @@ static int tcp_init_pkb(struct tcp_sock *tsk, struct pkbuf *pkb,
     return 0;
 }
 
+/*
+    将tcp报文发送给IP层
+    @tsk: tcp_sock
+    @pkb: 要发送的pkb
+    @seg: tcp 片段
+*/
 void tcp_send_out(struct tcp_sock *tsk, struct pkbuf *pkb, struct tcp_segment *seg)
 {
     struct ip *ip_hdr = pkb2ip(pkb);
@@ -105,23 +111,28 @@ void tcp_send_ack(struct tcp_sock *tsk, struct tcp_segment *seg)
     tcp_send_out(tsk, opkb, seg);
 }
 
+/*
+    给syn报文回复ack报文
+    @tsk: 为syn报文创建的tcp_sock
+    @eg: syn报文的tcp片段
+*/
 void tcp_send_synack(struct tcp_sock *tsk, struct tcp_segment *seg)
 {
     struct tcp *otcp, *tcp_hdr = seg->tcp_hdr;
     struct pkbuf *opkb;
     if (tcp_hdr->rst)
         return;
-    opkb = alloc_pkb(ETH_HDR_SZ + IP_HDR_SZ + TCP_HDR_SZ);
+    opkb = alloc_pkb(ETH_HDR_SZ + IP_HDR_SZ + TCP_HDR_SZ);  /* 创建将要发送的pkb */
 
     otcp = (struct tcp *)pkb2ip(opkb)->ip_data;
     otcp->src = tcp_hdr->dst;
     otcp->dst = tcp_hdr->src;
     otcp->doff = TCP_HDR_DOFF;
     otcp->seq = _htonl(tsk->iss);
-    otcp->ackn = _htonl(tsk->rcv_nxt);
+    otcp->ackn = _htonl(tsk->rcv_nxt);   /* rcv_nxt = seq + 1 */
     otcp->syn = 1;
     otcp->ack = 1;
-    otcp->window = _htons(tsk->rcv_wnd);
+    otcp->window = _htons(tsk->rcv_wnd);  /* tsk->rcv_wnd == TCP_DEFAULT_WINDOW */
     tcpdbg("send SYN(%u)/ACK(%u) [WIN %d] to "IPFMT":%d",
             _ntohl(otcp->seq), _ntohs(otcp->window),
             _ntohl(otcp->ackn), ipfmt(seg->ip_hdr->ip_dst),
