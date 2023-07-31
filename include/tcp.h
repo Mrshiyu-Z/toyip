@@ -86,10 +86,10 @@ struct tcp_sock {
     unsigned int snd_nxt;  /* send next seq */
     unsigned int snd_wnd;
     unsigned int snd_up;
-    unsigned int snd_wl1;
-    unsigned int snd_wl2;
+    unsigned int snd_wl1;  /* send seq for last window update 最后一次窗口更新时的seq */
+    unsigned int snd_wl2;  /* send ack for last window update 最后一次窗口更新时的ack */
     unsigned int iss;      /* init send seq num 初始发送序列号 */
-    unsigned int rcv_nxt;  /* recv next 下一个序列号*/
+    unsigned int rcv_nxt;  /* recv next seq 期望的下一个序列号*/
     unsigned int rcv_wnd;  
     unsigned int rcv_up;
     unsigned int irs;      /* init recv seq num 初始接收序列号 */
@@ -100,6 +100,10 @@ struct tcp_sock {
 #define TCP_MAX_BACKLOG     128
 #define TCP_DEAD_PARENT     ((struct tcp_sock *)0xffffdaed)
 
+/*
+    tcp flags
+    对应tcp_sock->flags
+*/
 #define TCP_F_PUSH          0x00000001
 #define TCP_F_ACKNOW        0x00000002
 #define TCP_F_ACKDELAY      0x00000004

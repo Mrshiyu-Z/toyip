@@ -156,12 +156,12 @@ static void tcp_synsent(struct pkbuf *pkb, struct tcp_segment *seg,
     }
     tcpsdbg("3. No check the security and precedence");
     tcpsdbg("4. check syn");
-    if (tcp_hdr->syn) {
-        tsk->irs = seg->seq;   /* 初始接收序列号 */
-        tsk->rcv_nxt = seg->seq + 1;  /* 应该接收的下一个序列号 */
-        if (tcp_hdr->ack)
-            tsk->snd_una = seg->ack; /* 发送的seq的ack */
-        if (tsk->snd_una > tsk->iss) { /*  */
+    if (tcp_hdr->syn) { /* 如果握手阶段对方回的包syn置1 */
+        tsk->irs = seg->seq;   /* 初始接收序列号等于对方发过来的syn包的seq */
+        tsk->rcv_nxt = seg->seq + 1;  /* 握手阶段,接收的下一个序列号等于seq+1 */
+        if (tcp_hdr->ack) /* 握手阶段,ack == init send seq +1 */
+            tsk->snd_una = seg->ack;
+        if (tsk->snd_una > tsk->iss) { /* 主动方这里认为连接已经建立成功 */
             tcp_set_state(tsk, TCP_ESTABLISHED);
             tsk->snd_wnd = seg->wnd;
             tsk->snd_wl1 = seg->seq;
@@ -169,7 +169,7 @@ static void tcp_synsent(struct pkbuf *pkb, struct tcp_segment *seg,
             tcp_send_ack(tsk, seg);
             tcpsdbg("Active three-way handshake successes!(SND.WIN:%d)", tsk->snd_wnd);
             wake_up(tsk->wait_connect);
-        } else {
+        } else {  /* 同时打开 */
             tcp_set_state(tsk, TCP_SYN_RECV);
             tcp_send_synack(tsk, seg);
             tcpsdbg("Simultaneous open(SYN-SENT => SYN-RECV)");
@@ -193,9 +193,15 @@ static int tcp_synrecv_ack(struct tcp_sock *tsk)
     return 0;
 }
 
+/*
+    检查seq
+    @seg: 接收到的tcp片段
+    @tsk: 本地tcp sock
+*/
 static int seq_check(struct tcp_segment *seg, struct tcp_sock *tsk)
 {
-    unsigned int rcv_end = tsk->rcv_nxt + (tsk->rcv_wnd ?: 1);
+    unsigned int rcv_end = tsk->rcv_nxt + (tsk->rcv_wnd ?: 1); /* 接收窗口结尾的位置 */
+    /* 序列号小于接收窗口最后一个位置 且 recv next 小于等于最后一个字节的序列号  */
     if (seg->seq < rcv_end && tsk->rcv_nxt <= seg->lastseq)
         return 0;
     tcpsdbg("rcv_nxt:%u <= seq:%u < rcv_end:%u",
@@ -230,7 +236,8 @@ void tcp_process(struct pkbuf *pkb, struct tcp_segment *seg, struct sock *sk)
     struct tcp_sock *tsk = tcpsk(sk);
     struct tcp *tcp_hdr = seg->tcp_hdr;
     tcp_dbg_state(tsk);
-    /* 下列判断是基于sock已存在的情况 */
+
+    /* sock已存在,判断sock状态 */
     if (!tsk || tsk->state == TCP_CLOSE)
         return tcp_closed(tsk, pkb, seg);
     if (tsk->state == TCP_LISTEN)
@@ -251,7 +258,7 @@ void tcp_process(struct pkbuf *pkb, struct tcp_segment *seg, struct sock *sk)
     if (tcp_hdr->rst) {
         switch (tsk->state) {
             case TCP_SYN_RECV:
-                if (tsk->parent) {
+                if (tsk->parent) { /* 被动打开的连接 */
                     tcp_unhash(&tsk->sk);
                 } else {
                     if (tsk->wait_connect)
@@ -269,6 +276,7 @@ void tcp_process(struct pkbuf *pkb, struct tcp_segment *seg, struct sock *sk)
                 break;
         }
         tcp_set_state(tsk, TCP_CLOSE);
+        /*  */
         tcp_unhash(&tsk->sk);
         tcp_unbhash(tsk);
         goto drop;
@@ -276,7 +284,9 @@ void tcp_process(struct pkbuf *pkb, struct tcp_segment *seg, struct sock *sk)
     tcpsdbg("3. No check security and precedence");
     tcpsdbg("4. check syn");
     if (tcp_hdr->syn) {
+        /* 只有 LISTEN || SYN-SENT状态能够接收 SYN */
         tcp_send_reset(tsk, seg);
+        /* 被动打开的连接 */
         if (tsk->state == TCP_SYN_RECV && tsk->parent)
             tcp_unhash(&tsk->sk);
         tcp_set_state(tsk, TCP_CLOSE);

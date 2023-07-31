@@ -121,6 +121,9 @@ static void tcp_unset_sport(struct sock *sk)
     tcp_table.bfree++;
 }
 
+/*
+    从tcp_bind hash表中删除tcp_sock
+*/
 void tcp_unbhash(struct tcp_sock *tsk)
 {
     if (!hlist_unhashed(&tsk->bhash_list)) {
