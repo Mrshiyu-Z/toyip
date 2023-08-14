@@ -19,6 +19,12 @@ void tcp_free_buf(struct tcp_sock *tsk)
     }
 }
 
+/*
+    将tcp data数据写入cbuf
+    @tsk: tcp sock
+    @data: 将要写入的数据
+    @len: 数据长度
+*/
 int tcp_write_buf(struct tcp_sock *tsk, void *data, unsigned int len)
 {
     struct cbuf *cbuf = tsk->rcv_buf;
@@ -37,6 +43,12 @@ int tcp_write_buf(struct tcp_sock *tsk, void *data, unsigned int len)
     return rlen;
 }
 
+/*
+    tcp数据接收
+    @tsk: tcp sock
+    @seg: 接收到的片段
+    @pkb: 接收到的完整的数据包
+*/
 void tcp_recv_text(struct tcp_sock *tsk, struct tcp_segment *seg, struct pkbuf *pkb)
 {
     int rlen;

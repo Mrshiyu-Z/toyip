@@ -41,7 +41,7 @@ static char *tcp_control_sring(struct tcp *tcp_hdr)
 }
 
 /*
-    初始化一个tcp分片
+    初始化tcp分片报文
     @seg: 需要初始化的分片
     @ip_hdr: 数据包的IP报文
     @tcp_hdr: 数据包的tcp报文
@@ -78,6 +78,7 @@ static void tcp_recv(struct pkbuf *pkb, struct ip *ip_hdr, struct tcp *tcp_hdr)
     struct tcp_segment seg;
     struct sock *sk;
     tcp_segment_init(&seg, ip_hdr, tcp_hdr);
+    /* 查找sock */
     sk = tcp_lookup_sock(ip_hdr->ip_src, ip_hdr->ip_dst, tcp_hdr->src, tcp_hdr->dst);
     tcp_process(pkb, &seg, sk);
     if (sk)

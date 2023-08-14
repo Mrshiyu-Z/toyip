@@ -72,16 +72,16 @@ struct tcp_sock {
     unsigned int bhash;
     int accept_backlog;
     int backlog;
-    struct list_head listen_queue;  /* tcp_sock处于listen状态时,listen_queue用于存放通过这个tcp_sock建立连接的child_tcp_sock*/
-    struct list_head accept_queue;
-    struct list_head list;  /* 当tcp_sock是child_tcp_sock,这个list用于添加到listen_queue */
+    struct list_head listen_queue;  /* listen sock accept的握手阶段的tcp sock 队列 */
+    struct list_head accept_queue;  /* listen sock accept的且已成功建立连接的tcp sock 队列 */
+    struct list_head list;  /* 用于链接到上面两个队列的node */
     struct tcp_timer timewait;
     struct tcpip_wait *wait_accept;
     struct tcpip_wait *wait_connect;
     struct tcp_sock *parent; /* 当tcp_sock是child_tcp_sock,parent指向listen_tcp_sock */
     unsigned int flags;
     struct cbuf *rcv_buf;
-    struct list_head rcv_reass;
+    struct list_head rcv_reass; /* 已接收,但未组装的tcp片段 */
     unsigned int snd_una;  /* send unacknowledged 已发送但未收到ack的seq */
     unsigned int snd_nxt;  /* send next seq */
     unsigned int snd_wnd;
@@ -125,15 +125,22 @@ struct tcp_segment {
     struct tcp *tcp_hdr;      /* tcp指针 */
 };
 
+/*
+    判断服务端listen状态accept 队列是否已满
+*/
 static _inline int tcp_accept_queue_full(struct tcp_sock *tsk)
 {
     return (tsk->accept_backlog >= tsk->backlog);
 }
 
+/*
+    将被动创建的tcp sock链接到listen sock上
+*/
 static _inline void tcp_accept_enqueue(struct tcp_sock *tsk)
 {
     if (!list_empty(&tsk->list))
         list_del(&tsk->list);
+    /* 将accept创建的tcp_sock连接到listen tcp_sock上 */
     list_add(&tsk->list, &tsk->parent->accept_queue);
     tsk->accept_backlog++;
 }

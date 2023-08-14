@@ -27,6 +27,9 @@ void tcp_segment_reass(struct tcp_sock *tsk, struct tcp_segment *seg, struct pkb
     struct tcp_reass_head *trh, *ctrh, *prev, *next;
     int rlen, len;
 
+    /*
+        调整分片中的数据部分
+    */
     list_for_each_entry(trh, &tsk->rcv_reass, list) {
         if (seg->seq < trh->seq) {
             prev = list_first_entry(&trh->list, struct tcp_reass_head, list);
@@ -38,7 +41,7 @@ void tcp_segment_reass(struct tcp_sock *tsk, struct tcp_segment *seg, struct pkb
     list_for_each_entry_safe_continue(trh, next, &tsk->rcv_reass, list) {
         if (seg->seq + seg->dlen < trh->seq + trh->len) {
             if (seg->seq + seg->dlen > trh->seq) {
-                seg->dlen = trh->seq - seg->seq;      
+                seg->dlen = trh->seq - seg->seq;
                 if (seg->dlen == 0)
                     goto out;
                 assert(seg->dlen > 0);
