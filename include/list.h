@@ -119,7 +119,7 @@ static _inline void list_del_init(struct list_head *list)
     list_entry((head)->next, type, member)
 
 /*
-    获取链表种最后一个节点所属的结构体的首地址
+    获取链表中前一个节点所属的结构体的首地址
     @head: 链表的头节点
     @type: 结构体类型
     @member: 结构体成员

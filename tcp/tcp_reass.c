@@ -32,7 +32,7 @@ void tcp_segment_reass(struct tcp_sock *tsk, struct tcp_segment *seg, struct pkb
     */
     list_for_each_entry(trh, &tsk->rcv_reass, list) {
         if (seg->seq < trh->seq) {
-            prev = list_first_entry(&trh->list, struct tcp_reass_head, list);
+            prev = list_last_entry(&trh->list, struct tcp_reass_head, list);
             ADJACENT_SEGMENT_HEAD(prev->seq + prev->len);
             break;
         }
