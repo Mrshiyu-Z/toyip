@@ -1,9 +1,11 @@
+#include "list.h"
 #include <stdio.h>
 #include <ctype.h>
 
 #include <netif.h>
 #include <ether.h>
 #include <lib.h>
+#include <string.h>
 
 #define MAX_PKBS 1024
 int free_pkbs = 0;
@@ -59,6 +61,22 @@ struct pkbuf *alloc_pkb(int size)
 struct pkbuf *alloc_netdev_pkb(struct netdev *nd)
 {
     return alloc_pkb(nd->net_mtu + ETH_HDR_SZ);
+}
+
+/*
+    复制一个pkb
+    @pkb: 复制的目标pkb
+*/
+struct pkbuf *copy_pkb(struct pkbuf *pkb)
+{
+    struct pkbuf *c_pkb;
+    c_pkb = xmalloc(pkb->pk_len);
+    memcpy(c_pkb, pkb, pkb->pk_len);
+    c_pkb->pk_refcnt = 1;
+    list_init(&c_pkb->pk_list);
+    alloc_pkbs++;
+    pkb_safe();
+    return c_pkb;
 }
 
 /*

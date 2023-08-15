@@ -50,7 +50,7 @@ struct pkbuf {                          // 网络包结构
     int pk_refcnt;                      // 网络包的引用计数
     struct netdev *pk_indev;            // 网络包的入口设备
     struct rtentry *pk_rtdst;           // 网络包的路由
-    // struct sock *pk_sk;
+    struct sock *pk_sk;
     unsigned char pk_data[0];           // 网络包的数据
 }__attribute__((packed));
 
@@ -87,20 +87,21 @@ extern struct netdev *veth;
 extern struct netdev *loop;
 
 extern void netdev_init(void);
-extern struct netdev *netdev_alloc(char *devstr, struct netdev_ops *netops);
-extern void netdev_free(struct netdev *dev);
+extern struct netdev *netdev_alloc(char *, struct netdev_ops *);
+extern void netdev_free(struct netdev *);
 extern void netdev_interrupt(void);
-void netdev_tx(struct netdev *dev, struct pkbuf *pkb, int len,
-        unsigned short proto, unsigned char *dst);
+void netdev_tx(struct netdev *, struct pkbuf *, int ,
+        unsigned short, unsigned char *);
 
-extern void net_in(struct netdev *dev, struct pkbuf *pkb);
+extern void net_in(struct netdev *, struct pkbuf *);
 extern void net_timer(void);
 
-extern struct pkbuf *alloc_pkb(int size);
-extern struct pkbuf *alloc_netdev_pkb(struct netdev *nd);
-extern void pkb_trim(struct pkbuf *pkb, int len);
-extern void free_pkb(struct pkbuf *pkb);
-extern void get_pkb(struct pkbuf *pkb);
+extern struct pkbuf *alloc_pkb(int );
+extern struct pkbuf *alloc_netdev_pkb(struct netdev *);
+extern void pkb_trim(struct pkbuf *, int );
+extern void free_pkb(struct pkbuf *);
+extern void get_pkb(struct pkbuf *);
+extern struct pkbuf *copy_pkb(struct pkbuf *);
 
 extern void netdev_init(void);
 #endif
