@@ -3,6 +3,7 @@
 #include "arp.h"
 #include "ip.h"
 #include "udp.h"
+#include "tcp.h"
 #include "icmp.h"
 #include "route.h"
 #include "lib.h"
@@ -28,7 +29,7 @@ void ip_recv_local(struct pkbuf *pkb)
             icmp_in(pkb);
             break;
         case IP_P_TCP:
-            // tcp_in(pkb);
+            tcp_in(pkb);
             break;
         case IP_P_UDP:
             udp_in(pkb);

@@ -28,7 +28,8 @@ void tcp_segment_reass(struct tcp_sock *tsk, struct tcp_segment *seg, struct pkb
     int rlen, len;
 
     /*
-        调整分片中的数据部分
+        找到seg应该插入的位置
+        调整seg->data
     */
     list_for_each_entry(trh, &tsk->rcv_reass, list) {
         if (seg->seq < trh->seq) {
@@ -37,7 +38,9 @@ void tcp_segment_reass(struct tcp_sock *tsk, struct tcp_segment *seg, struct pkb
             break;
         }
     }
-
+    /*
+        遍历每一个分片,检查seg->data是否重复
+    */
     list_for_each_entry_safe_continue(trh, next, &tsk->rcv_reass, list) {
         if (seg->seq + seg->dlen < trh->seq + trh->len) {
             if (seg->seq + seg->dlen > trh->seq) {
@@ -48,10 +51,10 @@ void tcp_segment_reass(struct tcp_sock *tsk, struct tcp_segment *seg, struct pkb
             }
             break;
         }
+        /* 删除重复的seg */
         list_del(&trh->list);
         free_pkb(containof(trh, struct pkbuf, pk_data));
     }
-    
     ctrh = (struct tcp_reass_head *)pkb->pk_data;
     list_init(&ctrh->list);
     ctrh->data = seg->text;
@@ -60,6 +63,7 @@ void tcp_segment_reass(struct tcp_sock *tsk, struct tcp_segment *seg, struct pkb
     list_add_tail(&ctrh->list, &trh->list);
     get_pkb(pkb);
 
+    /* 将链上的数据写入cbuf */
     len = rlen = 0;
     list_for_each_entry_safe(trh, next, &tsk->rcv_reass, list) {
         if (trh->seq > tsk->rcv_nxt)

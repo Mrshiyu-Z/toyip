@@ -46,9 +46,9 @@ static _inline void list_add(struct list_head *list, struct list_head *head)
 }
 
 /*
-    将节点插入到链表的尾部
+    将节点插入到目标节点的前面
     @list: 要添加的节点
-    @head: 链表的头节点
+    @head: 链表的节点
 */
 static _inline void list_add_tail(struct list_head *list, struct list_head *head)
 {
