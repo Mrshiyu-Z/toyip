@@ -102,6 +102,6 @@ extern void pkb_trim(struct pkbuf *, int );
 extern void free_pkb(struct pkbuf *);
 extern void get_pkb(struct pkbuf *);
 extern struct pkbuf *copy_pkb(struct pkbuf *);
+extern int local_address(unsigned int);
 
-extern void netdev_init(void);
 #endif

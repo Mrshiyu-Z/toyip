@@ -17,7 +17,7 @@ void raw_in(struct pkbuf *pkb)
     struct ip *ip_hdr = pkb2ip(pkb);
     struct pkbuf *raw_pkb;
     struct sock *sk;
-    sk = raw_look_up(ip_hdr->ip_src, ip_hdr->ip_dst, ip_hdr->ip_pro);
+    sk = raw_lookup_sock(ip_hdr->ip_src, ip_hdr->ip_dst, ip_hdr->ip_pro);
     while (sk) {
         raw_pkb = copy_pkb(pkb);
         raw_recv(raw_pkb, sk);

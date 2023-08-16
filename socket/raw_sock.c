@@ -131,7 +131,7 @@ struct sock *raw_lookup_sock_next(struct sock *sk,
     return bak;
 }
 
-struct sock *raw_look_up(unsigned int src, unsigned int dst, int proto)
+struct sock *raw_lookup_sock(unsigned int src, unsigned int dst, int proto)
 {
     struct hlist_head *hash_head = &raw_hash_table[__raw_hash_func(proto)];
     struct sock *sk;

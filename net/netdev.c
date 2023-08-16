@@ -91,3 +91,19 @@ void netdev_tx(struct netdev *dev, struct pkbuf *pkb, int len,
     dev->net_ops->xmit(dev,pkb);
     free_pkb(pkb);
 }
+
+int local_address(unsigned int addr)
+{
+    struct netdev *dev;
+    if (!addr) {
+        return 1;
+    }
+    if (LOCALNET(loop) == (loop->net_mask & addr)) {
+        return 1;
+    }
+    list_for_each_entry(dev, &netdev_list, net_list) {
+        if (dev->net_ipaddr == addr) {
+            return 1;
+        }
+    }
+}

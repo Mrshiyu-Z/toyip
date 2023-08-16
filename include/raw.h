@@ -12,11 +12,13 @@ struct raw_sock {
     struct list_head list;
 };
 extern void raw_in(struct pkbuf *);
-extern struct sock *raw_look_up(unsigned int, unsigned int, int);
+extern struct sock *raw_lookup_sock(unsigned int, unsigned int, int);
 extern struct sock *raw_lookup_sock_next(struct sock *,unsigned int, unsigned int, int);
 extern void raw_init(void);
 extern struct sock *raw_alloc_sock(int);
 
+extern struct tcpip_wait raw_send_wait;
+extern struct list_head raw_send_queue;
 
 #define RAW_DEFAULT_TTL 64
 #define RAW_MAX_BUFSZ   65536
