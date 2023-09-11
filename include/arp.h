@@ -68,6 +68,7 @@ static inline void arp_hton(struct arp *arphdr)
 
 extern void arp_timer(int delay);
 extern void arp_cache_init(void);
+extern void arp_cache_traverse(void);
 
 extern struct arpentry *arp_alloc(void);
 extern struct arpentry *arp_lookup(unsigned short pro, unsigned int ipaddr);

@@ -1,8 +1,11 @@
 #include "ether.h"
 #include "arp.h"
+#include "ip.h"
 #include "lib.h"
 #include "list.h"
 #include "compile.h"
+#include <math.h>
+#include <stdio.h>
 
 static struct arpentry arp_cache[ARP_CACHE_SZ];    /* ARP缓存 */
 
@@ -192,5 +195,45 @@ struct arpentry *arp_lookup(unsigned short pro, unsigned int ipaddr)
     }
     arp_cache_unlock();
     return ret;
+}
+
+static const char *__arpstate[] = {
+    NULL,
+    "Free",
+    "Waiting",
+    "Resolved"
+};
+
+static _inline const char *arp_state(struct arpentry *ae)
+{
+    return __arpstate[ae->ae_state];
+}
+
+char *ipnfmt(unsigned int ipaddr)
+{
+    static char ip_buf[16];
+    snprintf(ip_buf, 16, IPFMT, ipfmt(ipaddr));
+    return ip_buf;
+}
+
+void arp_cache_traverse(void)
+{
+    struct arpentry *ae;
+    int first;
+    arp_cache_lock();
+    first = 1;
+    for (ae = arp_cache_head; ae < arp_cache_tail; ae++) {
+        if (ae->ae_state == ARP_FREE) {
+            continue;
+        }
+        if (first) {
+            printf("State    Timeout(s)  HWaddress         Address\n");
+            first = 0;
+        }
+        printf("%-9s%-12d" MACFMT " %s\n",
+            arp_state(ae), ((ae->ae_ttl < 0) ? 0 : ae->ae_ttl),
+            macfmt(ae->ae_hwaddr), ipnfmt(ae->ae_ipaddr));
+    }
+    arp_cache_unlock();
 }
 

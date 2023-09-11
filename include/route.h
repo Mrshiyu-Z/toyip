@@ -24,5 +24,6 @@ extern void rt_add(unsigned int net, unsigned int netmask, unsigned int gw,
 extern void rt_init(void);
 extern int rt_output(struct pkbuf *pkb);
 extern int rt_input(struct pkbuf *pkb);
+extern void rt_traverse(void);
 
 #endif

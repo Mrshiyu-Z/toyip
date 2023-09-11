@@ -16,6 +16,8 @@
 #include <ctype.h>
 #include <stdarg.h>
 #include <assert.h>
+#include <signal.h>
+#include <bits/sigaction.h>
 
 /* pthread */
 #include <pthread.h>
@@ -27,6 +29,7 @@ typedef void *(*pfunc_t)(void *);
 /*
     控制是否开启debug信息的输出
 */
+extern unsigned int net_debug;
 #define NET_DEBUG_DEV		0x00000001
 #define NET_DEBUG_L2		0x00000002
 #define NET_DEBUG_ARP		0x00000004
@@ -35,6 +38,7 @@ typedef void *(*pfunc_t)(void *);
 #define NET_DEBUG_UDP		0x00000020
 #define NET_DEBUG_TCP		0x00000040
 #define NET_DEBUG_TCPSTATE  0x00000080
+#define NET_DEBUG_ALL       0xffffffff
 
 
 /*
@@ -69,49 +73,49 @@ typedef void *(*pfunc_t)(void *);
 */
 #define devdbg(fmt, args...) \
 do { \
-    if (NET_DEBUG_DEV) \
+    if (net_debug & NET_DEBUG_DEV) \
         dbg(green(dev)" "fmt, ##args); \
 }while (0)
 
 #define l2dbg(fmt, args...) \
 do { \
-    if (NET_DEBUG_L2) \
+    if (net_debug & NET_DEBUG_L2) \
         dbg(yellow(l2)" "fmt, ##args); \
 }while (0)
 
 #define arpdbg(fmt, args...)\
 do {\
-	if (NET_DEBUG_ARP)\
+	if (net_debug & NET_DEBUG_ARP)\
 		dbg(red(arp)" "fmt, ##args);\
 } while (0)
 
 #define ipdbg(fmt, args...)\
 do {\
-	if (NET_DEBUG_IP)\
+	if (net_debug & NET_DEBUG_IP)\
 		dbg(blue(ip)" "fmt, ##args);\
 } while (0)
 
 #define icmpdbg(fmt, args...)\
 do {\
-	if (NET_DEBUG_ICMP)\
+	if (net_debug & NET_DEBUG_ICMP)\
 		dbg(purple(icmp)" "fmt, ##args);\
 } while (0)
 
 #define udpdbg(fmt, args...)\
 do {\
-    if (NET_DEBUG_UDP)\
+    if (net_debug & NET_DEBUG_UDP)\
         dbg(purple(udp)" "fmt, ##args);\
 }while(0)
 
 #define tcpdbg(fmt, args...)\
 do {\
-    if (NET_DEBUG_TCP)\
+    if (net_debug & NET_DEBUG_TCP)\
         dbg(purple(tcp)" "fmt, ##args);\
 }while(0)
 
 #define tcpsdbg(fmt, args...)\
 do {\
-    if (NET_DEBUG_TCPSTATE)\
+    if (net_debug & NET_DEBUG_TCPSTATE)\
         dbg(green(tcpstate)" "fmt, ##args);\
 }while(0)
 
@@ -124,6 +128,8 @@ do {\
 extern void *xzalloc(int size);
 extern void *xmalloc(int size);
 extern void perrx(char *str);
+extern void printfs(int mlen, const char *fmt, ...);
+extern int str2ip(char *str, unsigned int *ip);
 
 extern unsigned short ip_chksum(unsigned short *data, int size);
 extern unsigned short icmp_chksum(unsigned short *data, int size);

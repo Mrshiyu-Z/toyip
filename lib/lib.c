@@ -1,4 +1,6 @@
 #include "lib.h"
+#include <stdarg.h>
+#include <stdio.h>
 
 /*
     打印错误信息
@@ -35,4 +37,32 @@ void *xzalloc(int size)
     if (!p)
         perrx("calloc");
     return p;
+}
+
+static char *_space = "                                              ";
+void printfs(int mlen, const char *fmt, ...)
+{
+    int slen;
+    va_list ap;
+    char buf[256];
+    va_start(ap, fmt);
+    slen = vsprintf(buf, fmt, ap);
+    va_end(ap);
+    printf("%.*s", mlen, buf);
+    if (mlen > slen) {
+        printf("%.*s", mlen - slen, _space);
+    }
+}
+
+int str2ip(char *str, unsigned int *ip)
+{
+	unsigned int a, b, c, d;
+	if (sscanf(str, "%u.%u.%u.%u", &a, &b, &c, &d) != 4){
+		return -1;
+	}
+	if (a > 255 || b > 255 || c > 255 || d > 255) {
+		return -1;
+	}
+	*ip = a | (b << 8) | (c << 16) | (d << 24);
+	return 0;
 }

@@ -1,3 +1,4 @@
+#include "compile.h"
 #include "netif.h"
 #include "ip.h"
 #include "icmp.h"
@@ -6,6 +7,7 @@
 #include "list.h"
 
 #include "netcfg.h"
+#include <stdio.h>
 
 static LIST_HEAD(rt_head);
 
@@ -129,4 +131,31 @@ int rt_output(struct pkbuf *pkb)
     ipdbg("Find route entry from "IPFMT " to "IPFMT,
             ipfmt(ip_hdr->ip_src), ipfmt(ip_hdr->ip_dst));
     return 0;
+}
+
+void rt_traverse(void)
+{
+    struct rtentry *rt;
+    if (list_empty(&rt_head)) {
+        return;
+    }
+    printf("Destination     Gateway         Genmask          Metric Iface\n");
+    list_for_each_entry(rt, &rt_head, rt_list) {
+        if (rt->rt_flags & RT_LOCALHOST) {
+            continue;
+        }
+        if (rt->rt_flags & RT_DEFAULT) {
+            printf("default        ");
+        } else {
+            printfs(16, IPFMT, ipfmt(rt->rt_net));
+        }
+        if (rt->rt_gateway == 0) {
+            printf("*               ");
+        } else {
+            printfs(16, IPFMT, ipfmt(rt->rt_gateway));
+        }
+        printfs(16, IPFMT, ipfmt(rt->rt_netmask));
+        printf("%-7d", rt->rt_metric);
+        printf("%s\n", rt->rt_dev->net_name);
+    }
 }
