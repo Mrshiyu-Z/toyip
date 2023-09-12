@@ -1,4 +1,4 @@
-OBJS   = main.o
+OBJS   = main.o net_command.o ping_command.o shell.o
 SUBDIR = shell
 
 all:shell_obj.o

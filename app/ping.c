@@ -6,11 +6,6 @@
 #include "route.h"
 #include "socket.h"
 #include "sock.h"
-#include <bits/getopt_core.h>
-#include <signal.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
 
 static unsigned short id;
 static unsigned short seq;
@@ -99,6 +94,16 @@ static int parse_args(int argc, char **argv)
     return 0;
 }
 
+static void close_socket(void)
+{
+    struct socket *tmp;
+    if (sock) {
+        tmp = sock;
+        sock = NULL;
+        _close(tmp);
+    }
+}
+
 static void send_packet(void)
 {
     if (!buf) {
@@ -109,7 +114,7 @@ static void send_packet(void)
     if (first) {
         printf("PING "IPFMT" %d(%d) bytes of data\n",
             ipfmt(ip_addr),
-            ipfmt(ip_addr),
+            size,
             (int)(size + ICMP_HDR_SZ + IP_HDR_SZ));
         first = 0;
     }
@@ -130,6 +135,46 @@ static void sigalrm(int num)
     send_packet();
 }
 
+static void ping_stat(void)
+{
+    printf(
+        "\n"
+        "--- " IPFMT " ping statistics ---\n"
+        "%d packets transmitted, %d received, %d%% packet loss\n",
+        ipfmt(ip_addr), psend, precv, (psend - precv) * 100 / psend);
+}
+
+static void sigint(int num)
+{
+    alarm(0);
+    close_socket();
+}
+
+static void recv_packet(void)
+{
+    struct pkbuf *pkb;
+    struct ip *ip_hdr;
+    struct icmp *icmp_hdr;
+    while (!finited || recv > 0) {
+        pkb = _recv(sock);
+        if (!pkb) {
+            break;
+        }
+        ip_hdr = pkb2ip(pkb);
+        icmp_hdr = ip2icmp(ip_hdr);
+        if (ip_hdr->ip_pro == IP_P_ICMP && 
+            _ntohs(icmp_hdr->icmp_hun.echo.id) == id &&
+            icmp_hdr->icmp_type == ICMP_T_ECHOREPLY) {
+            recv--;
+            printf("%d bytes from " IPFMT ": icmp_seq=%d ttl=%d\n",
+                ipdlen(ip_hdr), ipfmt(ip_hdr->ip_src),
+                _ntohs(icmp_hdr->icmp_seq), ip_hdr->ip_ttl);
+            precv++;
+        }
+        free_pkb(pkb);
+    }
+}
+
 void ping(int argc, char **argv)
 {
     int err;
@@ -142,4 +187,17 @@ void ping(int argc, char **argv)
     }
 
     signal(SIGALRM, sigalrm);
+    signal(SIGINT, sigint);
+
+    sk_addr.dst_addr = ip_addr;
+    sock = _socket(AF_INET, SOCK_RAW, IP_P_ICMP);
+    sigalrm(SIGALRM);
+    recv_packet();
+
+    alarm(0);
+    close_socket();
+    if (buf) {
+        free(buf);
+    }
+    ping_stat();
 }

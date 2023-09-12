@@ -12,7 +12,8 @@ NET_STACK_OBJS = shell/shell_obj.o \
 				 ip/ip_obj.o \
 				 socket/socket_obj.o \
 				 udp/udp_obj.o \
-				 tcp/tcp_obj.o
+				 tcp/tcp_obj.o \
+				 app/app_obj.o
 
 all: tcpip
 
@@ -42,6 +43,10 @@ udp/udp_obj.o: udp/*.c
 
 tcp/tcp_obj.o: tcp/*.c
 	@make -j4 -C tcp/
+
+app/app_obj.o: app/*.c
+	@make -j4 -C app/
+
 clean:
 	find ./ -name *.o | xargs rm -rf
 	rm -rf tcpip

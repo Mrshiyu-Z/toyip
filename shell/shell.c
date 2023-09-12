@@ -11,6 +11,8 @@ extern void netdebug(int argc, char **argv);
 extern void ifconfig(int argc, char **argv);
 extern void stat(int argc, char **argv);
 extern void route(int argc, char **argv);
+extern void ping(int argc, char **argv);
+extern void ping2(int argc, char **argv);
 
 #define MAX_CMD_LEN 256
 
@@ -56,7 +58,15 @@ static struct command cmds[] = {
     {0, CMD_NONUM, builtin_help, "help", "display shell command information"},
     {0, CMD_NONUM, builtin_clear, "clear", "clear the terminal screen"},
     {0, CMD_NONUM, builtin_exit, "exit", "exit shell"},
-    
+    {0, CMD_NONUM, netdebug, "debug", "debug dev|l2|arp|ip|icmp|udp|tcp|all"},
+    {0, CMD_NONUM, ping2, "ping2", "ping [OPTIONS] ipaddr(Internal stack implementation)"},
+    {0, 1, arp_cache, "arpcache", "see arp cache"},
+    {0, 1, route, "route", "show / manipulate the IP routing table"},
+    {0, 1, ifconfig, "ifconfig", "configure a network interface"},
+    {0, 1, stat, "stat", "display pkb/sock information"},
+    {1, CMD_NONUM, ping, "ping [OPTIONS] ipaddr"},
+    // {1, CMD_NONUM, snc, "Simplex Net Cat"},
+    { 0, 0, NULL, NULL, NULL }
 };
 
 static void builtin_help(int argc, char **argv)
@@ -233,6 +243,7 @@ void shell_master(char *prompt_str)
     while (!master_quit) {
         print_prompt();
         line_len = get_line(line_buf, MAX_CMD_LEN);
+		argc = parse_line(line_buf, line_len, argv);
         if (argc > 0) {
             parse_args(argc, argv);
         } else if (argc < 0) {

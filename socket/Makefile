@@ -1,4 +1,4 @@
-OBJS   = sock.o
+OBJS   = sock.o inet.o raw_sock.o socket.o
 SUBDIR = socket
 
 all:socket_obj.o
