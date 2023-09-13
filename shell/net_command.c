@@ -76,7 +76,7 @@ void netdebug(int argc, char **argv)
         }
         return;
     }
-    net_debug | debug;
+    net_debug |= debug;
     if (noblock) {
         return;
     }
