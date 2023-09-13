@@ -6,6 +6,7 @@
 #include "route.h"
 #include "socket.h"
 #include "sock.h"
+#include <stdio.h>
 
 static unsigned short id;
 static unsigned short seq;
@@ -53,7 +54,7 @@ static int parse_args(int argc, char **argv)
     }
     optind = 0;
     opterr = 0;
-    while ((c = getopt(argc, argv, "s:t:c:?h")) != 1) {
+    while ((c = getopt(argc, argv, "s:t:c:?h")) != -1) {
         switch (c) {
             case 's':
                 size = atoi(optarg);
@@ -181,6 +182,7 @@ void ping(int argc, char **argv)
     init_options();
     if ((err = parse_args(argc, argv)) < 0) {
         if (err == -1) {
+            printf("debug 185\n");
             usage();
         }
         return;

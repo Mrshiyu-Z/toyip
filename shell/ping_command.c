@@ -90,7 +90,7 @@ static int parse_args(int argc, char **argv)
     if (argc != 1) {
         return -1;
     }
-    if (str2ip(&argv, &ip_addr) < 0) {
+    if (str2ip(*argv, &ip_addr) < 0) {
         printf("bad ip address %s\n", *argv);
         return -2;
     }
@@ -103,7 +103,7 @@ static void send_packet(void)
     struct icmp *icmp_hdr;
     struct ip *ip_hdr;
 
-    pkb = alloc_pkb(ETH_HDR_SZ + IP_HDR_SZ + ICMP_HDR_SZ);
+    pkb = alloc_pkb(ETH_HDR_SZ + IP_HDR_SZ + ICMP_HDR_SZ + size);
     ip_hdr = pkb2ip(pkb);
     icmp_hdr = (struct icmp *)ip_hdr->ip_data;
 

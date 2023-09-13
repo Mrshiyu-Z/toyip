@@ -183,7 +183,7 @@ struct arpentry *arp_lookup(unsigned short pro, unsigned int ipaddr)
 {
     struct arpentry *ae, *ret = NULL;
     arp_cache_lock();
-    arpdbg("pro:%d "IPFMT, pro, ipfmt(ipaddr));
+    arpdbg("pro:%x "IPFMT, pro, ipfmt(ipaddr));
     for (ae = arp_cache_head;ae < arp_cache_tail; ae++)
     {
         if (ae->ae_state == ARP_FREE)

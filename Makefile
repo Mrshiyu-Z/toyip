@@ -15,38 +15,38 @@ NET_STACK_OBJS = shell/shell_obj.o \
 				 tcp/tcp_obj.o \
 				 app/app_obj.o
 
-all: tcpip
+all: toyip
 
-tcpip: $(NET_STACK_OBJS)
+toyip: $(NET_STACK_OBJS)
 	$(CC) $(LFLAGS) $^ -o $@
 
 shell/shell_obj.o: shell/*.c
-	@make -j4 -C shell/
+	@make -C shell/
 
 net/net_obj.o: net/*.c
-	@make -j4 -C net/
+	@make -C net/
 
 lib/lib_obj.o: lib/*.c
-	@make -j4 -C lib/
+	@make -C lib/
 
 arp/arp_obj.o: arp/*.c
-	@make -j4 -C arp/
+	@make -C arp/
 
 ip/ip_obj.o: ip/*.c
-	@make -j4 -C ip/
+	@make -C ip/
 
 socket/socket_obj.o: socket/*.c
-	@make -j4 -C socket/
+	@make -C socket/
 
 udp/udp_obj.o: udp/*.c
-	@make -j4 -C udp/
+	@make -C udp/
 
 tcp/tcp_obj.o: tcp/*.c
-	@make -j4 -C tcp/
+	@make -C tcp/
 
 app/app_obj.o: app/*.c
-	@make -j4 -C app/
+	@make -C app/
 
 clean:
 	find ./ -name *.o | xargs rm -rf
-	rm -rf tcpip
+	rm -rf toyip

@@ -19,17 +19,19 @@ void ip_send_dev(struct netdev *dev, struct pkbuf *pkb)
     unsigned int dst;
     struct rtentry *rt = pkb->pk_rtdst;
     // 查看是否是本地路由
-    if ( rt->rt_flags & RT_LOCALHOST ){
+    if ( rt->rt_flags & RT_LOCALHOST ) {
         ipdbg("To loopback");
         netdev_tx(dev, pkb, pkb->pk_len - ETH_HDR_SZ, 
                     ETH_P_IP, dev->net_hwaddr);
         return;
     }
     // 是否是默认路由,或者路由跳数大于1
-    if ((rt->rt_flags & RT_DEFAULT) || rt->rt_metric > 0)
+    if ((rt->rt_flags & RT_DEFAULT) || rt->rt_metric > 0) {
         dst = rt->rt_gateway;
-    else
+    }
+    else {
         dst = pkb2ip(pkb)->ip_dst;
+    }
     // 利用arp寻找目的IP的mac地址
     ae = arp_lookup(ETH_P_IP, dst);
     if (!ae) {
@@ -48,6 +50,9 @@ void ip_send_dev(struct netdev *dev, struct pkbuf *pkb)
         arpdbg("arp entry is waiting");
         list_add_tail(&pkb->pk_list, &ae->ae_list);
     } else {
+        arpdbg("ip "IPFMT" mac:"MACFMT,
+                ipfmt(ae->ae_ipaddr),
+                macfmt(ae->ae_hwaddr));
         netdev_tx(dev, pkb, pkb->pk_len - ETH_HDR_SZ,
                     ETH_P_IP, ae->ae_hwaddr);
     }

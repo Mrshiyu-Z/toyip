@@ -1,5 +1,6 @@
 #include "lib.h"
 #include "arp.h"
+#include <stdio.h>
 
 static void signal_init(void);
 static void builtin_help(int argc, char **argv);
@@ -64,7 +65,7 @@ static struct command cmds[] = {
     {0, 1, route, "route", "show / manipulate the IP routing table"},
     {0, 1, ifconfig, "ifconfig", "configure a network interface"},
     {0, 1, stat, "stat", "display pkb/sock information"},
-    {1, CMD_NONUM, ping, "ping [OPTIONS] ipaddr"},
+    {1, CMD_NONUM, ping, "ping", "ping [OPTIONS] ipaddr"},
     // {1, CMD_NONUM, snc, "Simplex Net Cat"},
     { 0, 0, NULL, NULL, NULL }
 };
@@ -177,7 +178,7 @@ static void parse_args(int argc, char **argv)
         if (strcmp(cmd->cmd_str, argv[0]) == 0) {
             goto runcmd;
         }
-	}
+    }
     ferr("-shell: %s: command not found.\n", argv[0]);
     return;
 runcmd:
@@ -243,7 +244,7 @@ void shell_master(char *prompt_str)
     while (!master_quit) {
         print_prompt();
         line_len = get_line(line_buf, MAX_CMD_LEN);
-		argc = parse_line(line_buf, line_len, argv);
+        argc = parse_line(line_buf, line_len, argv);
         if (argc > 0) {
             parse_args(argc, argv);
         } else if (argc < 0) {
