@@ -145,9 +145,9 @@ void ping2(int argc, char **argv)
         return;
     }
     signal(SIGALRM, sigalrm);
-    net_debug |= NET_DEBUG_ARP|NET_DEBUG_IP|NET_DEBUG_ICMP;
+    // net_debug |= NET_DEBUG_ARP|NET_DEBUG_IP|NET_DEBUG_ICMP;
     sigalrm(SIGALRM);
     alarm(0);
-    net_debug = 0;
+    // net_debug = 0;
     printf("\n");
 }
