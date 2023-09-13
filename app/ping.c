@@ -6,7 +6,6 @@
 #include "route.h"
 #include "socket.h"
 #include "sock.h"
-#include <stdio.h>
 
 static unsigned short id;
 static unsigned short seq;
@@ -134,6 +133,14 @@ static void send_packet(void)
 static void sigalrm(int num)
 {
     send_packet();
+    if (!finited || --count > 0) {
+        alarm(1);
+    } else if (count == 0) {
+        alarm(1);
+        count--;
+    } else {
+        close_socket();
+    }
 }
 
 static void ping_stat(void)

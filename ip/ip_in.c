@@ -2,6 +2,7 @@
 #include "ether.h"
 #include "arp.h"
 #include "ip.h"
+#include "raw.h"
 #include "udp.h"
 #include "tcp.h"
 #include "icmp.h"
@@ -23,6 +24,8 @@ void ip_recv_local(struct pkbuf *pkb)
             return;
         ip_hdr = pkb2ip(pkb);
     }
+
+    raw_in(pkb);
     switch (ip_hdr->ip_pro)
     {
         case IP_P_ICMP:

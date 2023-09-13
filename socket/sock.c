@@ -4,7 +4,6 @@
 #include "lib.h"
 #include "list.h"
 #include "wait.h"
-#include <stdlib.h>
 
 int alloc_socks = 0;
 int free_socks = 0;

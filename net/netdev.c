@@ -106,4 +106,5 @@ int local_address(unsigned int addr)
             return 1;
         }
     }
+	return 0;
 }

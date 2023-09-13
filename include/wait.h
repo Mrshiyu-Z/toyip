@@ -14,9 +14,9 @@
 struct tcpip_wait {
     pthread_mutex_t mutex;
     pthread_cond_t cond;
-    int notified;    // 用于记录是否已经唤醒了等待在条件变量上的线程. 1 表示已经有线程被唤醒 0 表示没有线程被唤醒
-    int dead;      // 用于记录线程等待状态是否已经结束. 1 结束 0 未结束
-    int sleep;   // 用于记录线程是否在等待.1 等待 0 非等待
+    int notified;    // 记录是否已经唤醒了等待在条件变量上的线程. 1 表示已经有线程被唤醒 0 表示没有线程被唤醒
+    int dead;        // 记录线程等待状态是否已经结束. 1 结束 0 未结束
+    int sleep;       // 记录线程是否在等待.1 等待 0 非等待
 };
 
 static _inline int wake_up(struct tcpip_wait *tw)
