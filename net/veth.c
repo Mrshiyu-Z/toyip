@@ -18,8 +18,9 @@ static int tap_dev_init(void)
     tap->fd = alloc_tap("tap0");                              // 申请tap设备
     if (tap->fd < 0)
         goto free_tap;
-    if (setperist_tap(tap->fd) < 0)
+    if (setperist_tap(tap->fd) < 0) {
         goto close_tap;
+    }
     set_tap();                                                // 设置tap设备
     getname_tap(tap->fd, tap->dev.net_name);                  // 获取tap设备的名称
     getmtu_tap(tap->dev.net_name, &tap->dev.net_mtu);         // 获取tap设备的MTU

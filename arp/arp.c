@@ -21,7 +21,7 @@ void arp_request(struct arpentry *ae)
     arphdr->arp_pro = _htons(ETH_P_IP);
     arphdr->arp_hlen = ETH_ALEN;
     arphdr->arp_plen = IP_ALEN;
-    arphdr->arp_pro = _htons(ARP_OP_REQUEST);
+    arphdr->arp_op = _htons(ARP_OP_REQUEST);
     /* 
         给ARP报文中的地址赋值 
         目的MAC地址为广播地址
