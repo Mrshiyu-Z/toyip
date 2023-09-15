@@ -59,7 +59,7 @@ static struct tcp_sock *tcp_listen_child_sock(struct tcp_sock *tsk,
     struct tcp_sock *newtsk = tcpsk(newsk);
     tcp_set_state(newtsk, TCP_SYN_RECV);     /* 设置状态为 syn recv */
     newsk->sk_saddr = seg->ip_hdr->ip_dst;
-    newsk->sk_daddr = seg->ip_hdr->ip_dst;
+    newsk->sk_daddr = seg->ip_hdr->ip_src;
     newsk->sk_sport = seg->tcp_hdr->dst;
     newsk->sk_dport = seg->tcp_hdr->src;
     if (tcp_hash(&newtsk->sk) < 0){          /* 设置 sock->hash并加入到hash链表上 */
