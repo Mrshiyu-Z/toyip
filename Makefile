@@ -21,31 +21,31 @@ toyip: $(NET_STACK_OBJS)
 	$(CC) $(LFLAGS) $^ -o $@
 
 shell/shell_obj.o: shell/*.c
-	@make -C shell/
+	@+$(MAKE) -C shell/
 
 net/net_obj.o: net/*.c
-	@make -C net/
+	@+$(MAKE) -C net/
 
 lib/lib_obj.o: lib/*.c
-	@make -C lib/
+	@+$(MAKE) -C lib/
 
 arp/arp_obj.o: arp/*.c
-	@make -C arp/
+	@+$(MAKE) -C arp/
 
 ip/ip_obj.o: ip/*.c
-	@make -C ip/
+	@+$(MAKE) -C ip/
 
 socket/socket_obj.o: socket/*.c
-	@make -C socket/
+	@+$(MAKE) -C socket/
 
 udp/udp_obj.o: udp/*.c
-	@make -C udp/
+	@+$(MAKE) -C udp/
 
 tcp/tcp_obj.o: tcp/*.c
-	@make -C tcp/
+	@+$(MAKE) -C tcp/
 
 app/app_obj.o: app/*.c
-	@make -C app/
+	@+$(MAKE) -C app/
 
 clean:
 	find ./ -name *.o | xargs rm -rf
