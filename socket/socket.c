@@ -48,12 +48,14 @@ static struct socket *alloc_socket(int family, int type)
 struct socket *_socket(int family, int type, int protocol)
 {
     struct socket *sock = NULL;
-    if (family != AF_INET)
+    if (family != AF_INET) {
         goto out;
+    }
 
     sock = alloc_socket(family, type);
-    if (!sock)
+    if (!sock) {
         goto out;
+    }
     sock->skt_ops = &inet_ops;
     if (sock->skt_ops->socket(sock, protocol) < 0) {
         free_socket(sock);
@@ -87,9 +89,10 @@ void _close(struct socket *sock)
 
 int _connect(struct socket *sock, struct sock_addr *sk_addr)
 {
-    int err = 1;
-    if (!sock || !sk_addr)
+    int err = -1;
+    if (!sock || !sk_addr) {
         goto out;
+    }
     get_socket(sock);
     if (sock->skt_ops) {
         err = sock->skt_ops->connect(sock, sk_addr);

@@ -9,6 +9,7 @@
 #include <bits/getopt_core.h>
 #include <pthread.h>
 #include <signal.h>
+#include <stdatomic.h>
 #include <stdio.h>
 #include <string.h>
 
@@ -20,8 +21,9 @@
 
 #define debug(fmt, args...) \
 do {\
-    if (flags & F_DEBUG)\
+    if (flags & F_DEBUG) {\
         dbg("(%s): "fmt, pro_str, ##args);\
+    }\
 } while (0)
 
 static unsigned int flags;
@@ -275,7 +277,7 @@ void snc(int argc, char **argv)
     if (create_socket() < 0) {
         goto out;
     }
-    if (flags & F_UDP) {
+    if (flags & F_BIND) {
         recv_packet();
     } else {
         send_packet();
