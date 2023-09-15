@@ -14,6 +14,7 @@ extern void stat(int argc, char **argv);
 extern void route(int argc, char **argv);
 extern void ping(int argc, char **argv);
 extern void ping2(int argc, char **argv);
+extern void snc(int argc, char **argv);
 
 #define MAX_CMD_LEN 256
 
@@ -66,7 +67,7 @@ static struct command cmds[] = {
     {0, 1, ifconfig, "ifconfig", "configure a network interface"},
     {0, 1, stat, "stat", "display pkb/sock information"},
     {1, CMD_NONUM, ping, "ping", "ping [OPTIONS] ipaddr"},
-    // {1, CMD_NONUM, snc, "Simplex Net Cat"},
+    {1, CMD_NONUM, snc, "snc", "Simplex Net Cat"},
     { 0, 0, NULL, NULL, NULL }
 };
 

@@ -87,12 +87,12 @@ void arp_recv(struct netdev *dev, struct pkbuf *pkb)
         /* 如果找到了条目, 则更新老的条目的mac地址 */
         hwcpy(ae->ae_hwaddr, arphdr->arp_src_hw);
         /* 处理reply报文 */
-        if (ae->ae_state == ARP_WAITING )
+        if (ae->ae_state == ARP_WAITING ) {
             arp_queue_send(ae);
+        }
         ae->ae_state = ARP_RESOLVED;
         ae->ae_ttl = ARP_TIMEOUT;
-    } else if (arphdr->arp_op == ARP_OP_REQUEST)
-    {
+    } else if (arphdr->arp_op == ARP_OP_REQUEST) {
         /* 如果是请求报文,就将请求方的ip和mac地址缓存 */
         arp_insert(dev, arphdr->arp_pro, arphdr->arp_src_ip, arphdr->arp_src_hw);
     }

@@ -130,6 +130,7 @@ extern void *xmalloc(int size);
 extern void perrx(char *str);
 extern void printfs(int mlen, const char *fmt, ...);
 extern int str2ip(char *str, unsigned int *ip);
+extern int parse_ip_port(char *str, unsigned int *addr, unsigned short *n_port);
 
 extern unsigned short ip_chksum(unsigned short *data, int size);
 extern unsigned short icmp_chksum(unsigned short *data, int size);

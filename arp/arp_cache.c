@@ -150,6 +150,7 @@ struct arpentry *arp_alloc(void)
     ae->ae_dev = NULL;
     ae->ae_retry = ARP_REQ_RETRY;
     ae->ae_ttl = ARP_TIMEOUT;
+    ae->ae_state = ARP_WAITING;
     ae->ae_pro = ETH_P_IP;
     list_init(&ae->ae_list);
     /* 下一次插入时可以直接从这次找的FREE之后的位置找 */
@@ -183,12 +184,12 @@ struct arpentry *arp_lookup(unsigned short pro, unsigned int ipaddr)
 {
     struct arpentry *ae, *ret = NULL;
     arp_cache_lock();
-    arpdbg("pro:%x "IPFMT, pro, ipfmt(ipaddr));
+    arpdbg("pro:%d "IPFMT, pro, ipfmt(ipaddr));
     for (ae = arp_cache_head;ae < arp_cache_tail; ae++)
     {
-        if (ae->ae_state == ARP_FREE)
+        if (ae->ae_state == ARP_FREE) {
             continue;
-        else if (ae->ae_pro == pro && ae->ae_ipaddr == ipaddr) {
+        } else if (ae->ae_pro == pro && ae->ae_ipaddr == ipaddr) {
             ret = ae;
             break;
         }
