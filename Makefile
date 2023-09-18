@@ -15,6 +15,8 @@ NET_STACK_OBJS = shell/shell_obj.o \
 				 tcp/tcp_obj.o \
 				 app/app_obj.o
 
+.PHYONE: clean
+
 all: toyip
 
 toyip: $(NET_STACK_OBJS)

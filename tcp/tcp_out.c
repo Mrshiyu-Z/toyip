@@ -104,7 +104,7 @@ void tcp_send_ack(struct tcp_sock *tsk, struct tcp_segment *seg)
     otcp->seq = _htonl(tsk->snd_nxt);
     otcp->ackn = _htonl(tsk->rcv_nxt);
     otcp->ack = 1;
-    otcp->ackn = _htons(tsk->rcv_wnd);
+    otcp->window = _htons(tsk->rcv_wnd);
     tcpdbg("send ACK(%u) [WIN %d] to "IPFMT":%d",
             _ntohl(otcp->ackn), _ntohs(otcp->window),
             ipfmt(seg->ip_hdr->ip_src), _ntohs(otcp->dst));

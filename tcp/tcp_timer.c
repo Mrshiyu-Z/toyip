@@ -3,7 +3,6 @@
 #include "tcp.h"
 #include "lib.h"
 #include "tcp_timer.h"
-#include <unistd.h>
 
 static struct tcp_timer_head timewait;
 
@@ -45,7 +44,7 @@ void tcp_timer(void)
     while (1) {
         usleep(TCP_TIMER_DELTA);
         i++;
-        if ((i % (1000000 / TCP_TIME_WAIT)) == 0)
+        if ((i % (1000000 / TCP_TIMER_DELTA)) == 0)
             tcp_timewait_timer(1000000);
     }
 }
