@@ -88,7 +88,7 @@ struct tcp_sock {
     unsigned int snd_up;
     unsigned int snd_wl1;  /* send seq for last window update 最后一次窗口更新时的seq */
     unsigned int snd_wl2;  /* send ack for last window update 最后一次窗口更新时的ack */
-    unsigned int iss;      /* init send seq num 初始发送序列号 */
+    unsigned int iss;      /* init send seq 初始发送序列号 */
     unsigned int rcv_nxt;  /* recv next seq 期望的下一个序列号*/
     unsigned int rcv_wnd;  
     unsigned int rcv_up;
@@ -206,7 +206,8 @@ extern const char *tcp_state_string[];
         } \
     } while(0)
 
-static _inline void tcp_set_state(struct tcp_sock *tsk, enum tcp_state state)
+static _inline void tcp_set_state(struct tcp_sock *tsk,
+                                  enum tcp_state state)
 {
     tcpsdbg("State from %s to %s", tcp_state_string[tsk->state],
                     tcp_state_string[state]);

@@ -38,6 +38,9 @@ static _inline void tcp_dbg_state(struct tcp_sock *tsk)
         tcpsdbg("Unknown tcp state: %d", tsk->state);
 }
 
+/*
+    获取初始发送序列号
+*/
 unsigned int alloc_new_iss(void)
 {
     static unsigned int iss = 12345678;
@@ -53,7 +56,7 @@ unsigned int alloc_new_iss(void)
     @seg: 收到的 tcp 片段 
 */
 static struct tcp_sock *tcp_listen_child_sock(struct tcp_sock *tsk,
-                        struct tcp_segment *seg)
+                                              struct tcp_segment *seg)
 {
     struct sock *newsk = tcp_alloc_sock(tsk->sk.protocol);
     struct tcp_sock *newtsk = tcpsk(newsk);
@@ -62,13 +65,13 @@ static struct tcp_sock *tcp_listen_child_sock(struct tcp_sock *tsk,
     newsk->sk_daddr = seg->ip_hdr->ip_src;
     newsk->sk_sport = seg->tcp_hdr->dst;
     newsk->sk_dport = seg->tcp_hdr->src;
-    if (tcp_hash(&newtsk->sk) < 0){          /* 设置 sock->hash并加入到hash链表上 */
+    if (tcp_hash(&newtsk->sk) < 0){                 /* 设置 sock->hash并加入到listen hash表上 */
         free(newtsk);
         return NULL;
     }
 
-    newtsk->parent = get_tcp_sock(tsk);       /* 将tcp_sock的parent设置为listen状态的sock */
-    list_add(&newtsk->list, &tsk->listen_queue);   /* 将tcp_sock添加到listen_sock的listen_queue中 */
+    newtsk->parent = get_tcp_sock(tsk);             /* 将tcp_sock的parent设置为listen状态的sock */
+    list_add(&newtsk->list, &tsk->listen_queue);    /* 将tcp_sock添加到listen_sock的listen_queue中 */
 
     return get_tcp_sock(newtsk);
 }
@@ -79,18 +82,20 @@ static struct tcp_sock *tcp_listen_child_sock(struct tcp_sock *tsk,
     @seg: 由pkb包init的tcp分片
     @tsk: tcp sock
 */
-static void tcp_listen(struct pkbuf *pkb, struct tcp_segment *seg,
-            struct tcp_sock *tsk)
+static void tcp_listen(struct pkbuf *pkb,
+                       struct tcp_segment *seg,
+                       struct tcp_sock *tsk)
 {
     struct tcp_sock *newtsk;
     struct tcp *tcp_hdr = seg->tcp_hdr;
     tcpsdbg("LISTEN");
     tcpsdbg("1. check rst");
-    if (tcp_hdr->rst)
+    if (tcp_hdr->rst) {
         goto discarded;
+    }
     tcpsdbg("2. check ack");
     /* listen状态收到ack包是不合理的 */
-    if (tcp_hdr->ack){
+    if (tcp_hdr->ack) {
         tcp_send_reset(tsk, seg);
         goto discarded;
     }
@@ -105,7 +110,7 @@ static void tcp_listen(struct pkbuf *pkb, struct tcp_segment *seg,
         tcpsdbg("cannot alloc new sock");
         goto discarded;
     }
-    /* 接收窗口,设置初始 接收序列号 */
+    /* 接收窗口,设置初始的接收序列号 */
     newtsk->irs = seg->seq;
     /* 发送窗口,设置初始 发送序列号 */ 
     newtsk->iss = alloc_new_iss();
@@ -128,14 +133,16 @@ discarded:
     tcp关闭函数,发送tcp reset 报文
     @tsk: tcp sock
     @pkb: 收到的pkb包
-    @seg: 由pkb包格式化的tcp分片
+    @seg: 由pkb包format的tcp分片
 */
-static void tcp_closed(struct tcp_sock *tsk, struct pkbuf *pkb,
-            struct tcp_segment *seg)
+static void tcp_closed(struct tcp_sock *tsk,
+                       struct pkbuf *pkb,
+                       struct tcp_segment *seg)
 {
     tcpsdbg("CLOSED");
-    if (!tsk)
+    if (!tsk) {
         tcp_send_reset(tsk, seg);
+    }
     free_pkb(pkb);
 }
 
@@ -145,8 +152,9 @@ static void tcp_closed(struct tcp_sock *tsk, struct pkbuf *pkb,
     @seg: pkb中的tcp片段
     @tsk: tcp_sock
 */
-static void tcp_synsent(struct pkbuf *pkb, struct tcp_segment *seg,
-            struct tcp_sock *tsk)
+static void tcp_synsent(struct pkbuf *pkb,
+                        struct tcp_segment *seg,
+                        struct tcp_sock *tsk)
 {
     /*
         synsent状态
@@ -217,7 +225,7 @@ static void tcp_synsent(struct pkbuf *pkb, struct tcp_segment *seg,
     }
     tcpsdbg("5. drop the segment");
 discarded:
-    /* 握手阶段的包,不管握手成功或者失败,都不需要 */
+    /* 握手阶段的包,不管握手成功或者失败,都不需要保存 */
     free_pkb(pkb);
 }
 
@@ -280,7 +288,9 @@ static _inline void tcp_update_window(struct tcp_sock *tsk,
     @seg: tcp分片
     @sk: tcp sock
 */
-void tcp_process(struct pkbuf *pkb, struct tcp_segment *seg, struct sock *sk)
+void tcp_process(struct pkbuf *pkb,
+                 struct tcp_segment *seg,
+                 struct sock *sk)
 {
     struct tcp_sock *tsk = tcpsk(sk);
     struct tcp *tcp_hdr = seg->tcp_hdr;
@@ -294,6 +304,10 @@ void tcp_process(struct pkbuf *pkb, struct tcp_segment *seg, struct sock *sk)
         return tcp_synsent(pkb, seg, tsk);
     if (tsk->state >= TCP_MAX_STATE)
         goto drop;
+    /*
+        上面处理接收到的握手阶段的包
+        接下来处理ESTABLISHED阶段的包
+    */
     tcpsdbg("1. check seq");
     if (seq_check(seg, tsk) < 0){
         if (!tcp_hdr->rst)

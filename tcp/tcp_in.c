@@ -73,7 +73,9 @@ static void tcp_segment_init(struct tcp_segment *seg, struct ip *ip_hdr, struct 
     @ip_hdr: ip 报文
     @tcp_hdr: tcp 报文
 */
-static void tcp_recv(struct pkbuf *pkb, struct ip *ip_hdr, struct tcp *tcp_hdr)
+static void tcp_recv(struct pkbuf *pkb,
+                     struct ip *ip_hdr,
+                     struct tcp *tcp_hdr)
 {
     struct tcp_segment seg;
     struct sock *sk;
@@ -81,8 +83,9 @@ static void tcp_recv(struct pkbuf *pkb, struct ip *ip_hdr, struct tcp *tcp_hdr)
     /* 查找sock */
     sk = tcp_lookup_sock(ip_hdr->ip_src, ip_hdr->ip_dst, tcp_hdr->src, tcp_hdr->dst);
     tcp_process(pkb, &seg, sk);
-    if (sk)
+    if (sk) {
         free_sock(sk);
+    }
 }
 
 /*

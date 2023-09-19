@@ -39,11 +39,13 @@ static int tcp_init_pkb(struct tcp_sock *tsk, struct pkbuf *pkb,
     @pkb: 要发送的pkb
     @seg: tcp 片段
 */
-void tcp_send_out(struct tcp_sock *tsk, struct pkbuf *pkb, struct tcp_segment *seg)
+void tcp_send_out(struct tcp_sock *tsk,
+                  struct pkbuf *pkb,
+                  struct tcp_segment *seg)
 {
     struct ip *ip_hdr = pkb2ip(pkb);
     struct tcp *tcp_hdr = (struct tcp *)ip_hdr->ip_data;
-    unsigned int  saddr, daddr;
+    unsigned int saddr, daddr;
 
     if (seg) {
         daddr = seg->ip_hdr->ip_src;
@@ -62,7 +64,8 @@ void tcp_send_out(struct tcp_sock *tsk, struct pkbuf *pkb, struct tcp_segment *s
     ip_send_out(pkb);
 }
 
-void tcp_send_reset(struct tcp_sock *tsk, struct tcp_segment *seg)
+void tcp_send_reset(struct tcp_sock *tsk,
+                    struct tcp_segment *seg)
 {
     struct tcp *otcp, *tcp_hdr = seg->tcp_hdr;
     struct pkbuf *opkb;
@@ -114,9 +117,10 @@ void tcp_send_ack(struct tcp_sock *tsk, struct tcp_segment *seg)
 /*
     给syn报文回复ack报文
     @tsk: 为syn报文创建的tcp_sock
-    @eg: syn报文的tcp片段
+    @seg: syn报文的tcp片段
 */
-void tcp_send_synack(struct tcp_sock *tsk, struct tcp_segment *seg)
+void tcp_send_synack(struct tcp_sock *tsk,
+                     struct tcp_segment *seg)
 {
     struct tcp *otcp, *tcp_hdr = seg->tcp_hdr;
     struct pkbuf *opkb;

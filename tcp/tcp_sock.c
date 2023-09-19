@@ -54,8 +54,10 @@ static struct sock *tcp_lookup_sock_listen(unsigned int addr, unsigned int nport
     return NULL;
 }
 
-struct sock *tcp_lookup_sock(unsigned int src, unsigned int dst,
-                unsigned int src_port, unsigned int dst_port)
+struct sock *tcp_lookup_sock(unsigned int src,
+                             unsigned int dst,
+                             unsigned int src_port,
+                             unsigned int dst_port)
 {
     struct sock *sk;
     sk = tcp_lookup_sock_establish(src, dst, src_port, dst_port);
